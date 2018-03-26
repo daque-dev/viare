@@ -15,9 +15,10 @@ interface IWorld
 
 struct Tile
 {
-    BiomeInfo biomeInfo;
     AmbientInfo ambientInfo;
+
     IElement element;
+    IBiome biome;
 }
 
 /*
@@ -27,17 +28,15 @@ interface IElement
 {
 }
 
-struct BiomeInfo
+/*
+*/
+interface IBiome
 {
-    enum Type {
-	FreshWater, Forest
-    };
-    Type type;
 }
 
+/*
+*/
 struct AmbientInfo
 {
     double temperature;
 }
-
-
