@@ -31,7 +31,8 @@ struct BiomeInfo
 {
     enum Type {
 	FreshWater, Forest
-    } type;
+    };
+    Type type;
 }
 
 struct AmbientInfo
