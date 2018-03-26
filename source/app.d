@@ -1,3 +1,5 @@
+// Core of the game
+
 import std.stdio;
 import abst.world;
 import geometry;
