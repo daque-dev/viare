@@ -1,10 +1,10 @@
 {
-	"name": "asd",
+	"name": "ViaRE",
 	"authors": [
-		"David",
-		"Miguel"
+		"bitobs",
+		"davidomarf"
 	],
-	"description": "Aremos Simulaciones Descontroladas",
+	"description": "ViaRE is a Real Emulation",
 	"copyright": "Copyright © 2018",
 	"license": "MIT"
 }
