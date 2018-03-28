@@ -1,10 +1,29 @@
 {
-	"name": "ViaRE",
+	"name": "viare",
+	"targetName" : "ViaRE",
 	"authors": [
 		"bitobs",
 		"davidomarf"
 	],
 	"description": "ViaRE is a Real Emulation",
 	"copyright": "Copyright © 2018",
-	"license": "MIT"
+	"license": "MIT",
+	"configurations": [
+        {
+            "name": "application",
+            "targetType": "executable"
+        },
+        {
+			"name": "unittest",
+            "targetType": "executable",
+            "targetPath" : "tests",
+            "buildOptions": ["unittests"],
+            "excludedSourceFiles": ["source/app.d"],
+            "sourcePaths": ["tests/"],
+            "importPaths": ["tests/"],
+            "dependencies": {
+                "dunit": ">=1.0.9"
+            }
+        }
+    ]
 }
