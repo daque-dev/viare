@@ -1,3 +1,5 @@
+module viare.geometry;
+
 import  std.traits,
         std.math,
         std.stdio;

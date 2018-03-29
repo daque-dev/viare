@@ -1,9 +1,9 @@
-module abst.world;
+module viare.abst.world;
 
-import geometry;
+import viare.geometry;
 
 /*
-Common interface for 'World's, which are 3D array's of 'IElements'
+Common interface for 'World's, which are 3D array's of 'Tile's
 */
 interface IWorld
 {

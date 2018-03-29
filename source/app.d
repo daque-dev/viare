@@ -1,15 +1,18 @@
 // Core of the game
 
 import std.stdio;
-import abst.world;
-import geometry;
+import std.file;
 
-void receiveWorld(IWorld world)
-{
-    writeln("received a world of size ", world.getSize());
-}
+import derelict.sdl2.sdl;
+
+import viare.abst.world;
+import viare.geometry;
+import viare.graphics;
 
 void main()
 {
-    writeln("welcome to unnamed");
+    Window window = new Window("viare", 800, 600);
+    Shader shader = new Shader(Shader.Type.Vertex, "shaders/test.glsl");
+    SDL_Delay(1000);
+    return;
 }
