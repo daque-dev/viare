@@ -7,6 +7,8 @@ import std.file;
 import derelict.opengl;
 import derelict.sdl2.sdl;
 
+import viare.geometry;
+
 static this()
 {
     DerelictSDL2.load();
@@ -109,3 +111,78 @@ class Shader
 	}
 }
 
+class Buffer
+{
+    public:
+	this()
+	{
+	    glGenBuffers(1, &m_bufferName);
+	}
+	~this()
+	{
+	    glDeleteBuffers(1, &m_bufferName);
+	}
+
+	void bufferData(void* data, size_t size)
+	{
+	    bind();
+	    glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
+	    unbind();
+	}
+
+	void bind()
+	{
+	    glBindBuffer(GL_ARRAY_BUFFER, m_bufferName);
+	}
+
+	void unbind()
+	{
+	    glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+
+    private:
+	GLuint m_bufferName;
+}
+
+struct Vertex
+{
+    Vector!float position;
+    Vector!float color;
+};
+
+class VertexArray
+{
+    public:
+	this()
+	{
+	    glGenVertexArrays(1, &m_vertexArrayName);
+	}
+	~this()
+	{
+	    glDeleteVertexArrays(1, &m_vertexArrayName);
+	}
+
+	void use(Buffer buffer)
+	{
+	    bind();
+	    glEnableVertexAttribArray(0);
+	    glEnableVertexAttribArray(1);
+	    buffer.bind();
+	    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, cast(GLsizei) Vertex.sizeof, cast(void*) Vertex.position.offsetof);
+	    glVertexAttribPointer(1, 3, GL_FLOAT, GL_TRUE, cast(GLsizei) Vertex.sizeof, cast(void*) Vertex.color.offsetof);
+	    buffer.unbind();
+	    unbind();
+	}
+
+	void bind()
+	{
+	    glBindVertexArray(m_vertexArrayName);
+	}
+	void unbind()
+	{
+	    glBindVertexArray(0);
+	}
+
+    private:
+	GLuint m_vertexArrayName;
+}
