@@ -1,14 +1,33 @@
 {
 	"name": "viare",
+	"targetName" : "ViaRE",
 	"authors": [
 		"bitobs",
 		"davidomarf"
 	],
-	"description": "ViaRE is a Real Emulation",
+	"description": "ViaRE is a Real Emulator",
 	"copyright": "Copyright © 2018",
+
 	"dependencies": {
 	    "derelict-sdl2": "~>3.0.0-beta",
 	    "derelict-gl3": "~>2.0.0-beta"
 	},
-	"license": "MIT"
+	"configurations": [
+        {
+            "name": "application",
+            "targetType": "executable"
+        },
+        {
+			"name": "unittest",
+            "targetType": "executable",
+            "targetPath" : "tests",
+            "buildOptions": ["unittests"],
+            "excludedSourceFiles": ["source/app.d"],
+            "sourcePaths": ["tests/"],
+            "importPaths": ["tests/"],
+            "dependencies": {
+                "dunit": ">=1.0.9"
+            }
+        }
+    ]
 }
