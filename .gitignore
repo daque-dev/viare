@@ -16,6 +16,7 @@
 *.lib
 
 # Executables
+ViaRE
 *.exe
 
 # DUB
