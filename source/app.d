@@ -1,15 +1,11 @@
 // Core of the game
 
 import std.stdio;
-import abst.world;
-import geometry;
 
-void receiveWorld(IWorld world)
-{
-    writeln("received a world of size ", world.getSize());
-}
+import viare.abst.world;
+import viare.geometry;
+import viare.graphics;
 
 void main()
 {
-    writeln("welcome to unnamed");
 }

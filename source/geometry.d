@@ -1,4 +1,5 @@
-// This will do something tricky and spoooooooky 
+module viare.geometry;
+
 import std.traits;
 
 /*
