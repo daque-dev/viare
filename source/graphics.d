@@ -31,6 +31,10 @@ class Window
 		width, height,
 		SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 	}
+	~this()
+	{
+	    SDL_DestroyWindow(m_window);
+	}
 
     private:
 	SDL_Window* m_window;
