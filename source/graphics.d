@@ -3,6 +3,7 @@ module viare.graphics;
 import std.stdio;
 import std.string;
 import std.file;
+import std.algorithm;
 
 import derelict.opengl;
 import derelict.sdl2.sdl;
@@ -56,17 +57,21 @@ class Shader
 	{
 	    Vertex, Fragment
 	};
-	Type type;
+
+	@property Type type()
+	{
+	    return m_type;
+	}
 
 	this(Shader.Type type, string sourcePath)
 	{
-	    this.type = type;
+	    m_type = type;
 	    m_shaderGlName = compileShader(type, sourcePath);
 	}
 
     private:
-	string m_sourceCode;
 	GLuint m_shaderGlName;
+	Type m_type;
 
 	static GLuint compileShader(Type type, string sourcePath)
 	{
@@ -97,7 +102,7 @@ class Shader
 	    return shaderName;
 	}
 
-	static GLenum typeToGlenum(Type type)
+	static pure GLenum typeToGlenum(Type type)
 	{
 	    switch(type)
 	    {
@@ -148,7 +153,50 @@ struct Vertex
 {
     Vector!float position;
     Vector!float color;
+
+    static AttributeFormat[] formats = 
+    [
+	//position format
+	{
+	    index: 0, 
+	    size: 3, 
+	    type: GL_FLOAT, 
+	    normalized: GL_FALSE, 
+	    stride: cast(GLsizei)Vertex.sizeof, 
+	    pointer: cast(void*)Vertex.position.offsetof
+	},
+	//color format
+	{
+	    index: 1, 
+	    size: 3, 
+	    type: GL_FLOAT, 
+	    normalized: GL_TRUE, 
+	    stride: cast(GLsizei)Vertex.sizeof, 
+	    pointer: cast(void*)Vertex.color.offsetof
+	}
+    ];
 };
+
+struct AttributeFormat
+{
+    GLuint index;
+    GLint size;
+    GLenum type;
+    GLboolean normalized;
+    GLsizei stride;
+    const GLvoid* pointer;
+};
+
+void setup(AttributeFormat format)
+{
+    glEnableVertexAttribArray(format.index);
+
+    glVertexAttribPointer(format.index,
+	format.size, format.type,
+	format.normalized,
+	format.stride,
+	format.pointer);
+}
 
 class VertexArray
 {
@@ -165,12 +213,8 @@ class VertexArray
 	void use(Buffer buffer)
 	{
 	    bind();
-	    glEnableVertexAttribArray(0);
-	    glEnableVertexAttribArray(1);
 	    buffer.bind();
-	    /*attribute index, no of components, type, normalized, stride, offset*/
-	    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, cast(GLsizei) Vertex.sizeof, cast(void*) Vertex.position.offsetof);
-	    glVertexAttribPointer(1, 3, GL_FLOAT, GL_TRUE, cast(GLsizei) Vertex.sizeof, cast(void*) Vertex.color.offsetof);
+	    Vertex.formats.each!setup;
 	    buffer.unbind();
 	    unbind();
 	}
