@@ -1,8 +1,8 @@
 module viare.geometry;
 
-import  std.traits,
-        std.math,
-        std.stdio;
+import std.traits;
+import std.math;
+import std.stdio;
 
 /*
 Template for Vector types.
