@@ -168,6 +168,7 @@ class VertexArray
 	    glEnableVertexAttribArray(0);
 	    glEnableVertexAttribArray(1);
 	    buffer.bind();
+	    /*attribute index, no of components, type, normalized, stride, offset*/
 	    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, cast(GLsizei) Vertex.sizeof, cast(void*) Vertex.position.offsetof);
 	    glVertexAttribPointer(1, 3, GL_FLOAT, GL_TRUE, cast(GLsizei) Vertex.sizeof, cast(void*) Vertex.color.offsetof);
 	    buffer.unbind();
