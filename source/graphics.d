@@ -10,18 +10,18 @@ import derelict.sdl2.sdl;
 
 import viare.geometry;
 
-
 /*
-@square function.
-    Squares the given number, returns the result.
-*/
-double //square of @x
-square
-    (double x/*number to be squared*/)
-{
-    return x * x;
-}
+@(static this) module constructor.
+    Initializes required libraries, which are:
+	SDL2 initialization
+	GL3 initialization
 
+    The GL3 initialization requires 2 stages:
+	1) the one presented here: DerelictGL3.load which loads the primary API functions.
+	2) the one is called after an opengl context is available: DerelictGL3.reload which loads
+	the available extensions to the basic API, as it requires an opengl context it is called in
+	the @Window constructor
+*/
 static this()
 {
     DerelictSDL2.load();
@@ -33,6 +33,9 @@ static this()
     }
 }
 
+/*
+@(static ~this) module destructor.
+*/
 static ~this()
 {
 }
@@ -48,11 +51,18 @@ class Window
     /*
     @Window constructor.
 	Constructs a new window with the specified dimensions (@width x @height) and name @name.
+
+    Inputs:
+	@name(@string):
+	    name of the window to be constructed
+	@width(@uint):
+	    width of the window to be constructed
+	@height(@uint):
+	    height of the window to be constructed
+    Outputs:
+	Constructs @this.
     */
-	this
-	    (string name, // name of the window to be constructed
-	    uint width, // width of the window to be constructed
-	    uint height) // height of the window to be constructed
+	this(string name, uint width, uint height)
 	{
 	    m_window = SDL_CreateWindow(name.toStringz(),
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -63,7 +73,10 @@ class Window
 
 	    DerelictGL3.reload();
 	}
-    // Deallocates resources.
+    /*
+    @Window destructor.
+	Deallocates the resources managed by the @Window object
+    */
 	~this()
 	{
 	    SDL_DestroyWindow(m_window);
@@ -105,8 +118,6 @@ class Shader
     @Shader.type method.
 	Returns the type of the shader @this
 
-    Inputs:
-	none
     Ouputs:
 	return(@Shader.Type):
 	    shader type of shader represented by @this
@@ -127,8 +138,6 @@ class Shader
 	@sourcePath(@string)
 	    String representing a path to a file containing the source code which will be used as
 	    source for the constructed shader
-    Outputs:
-	Constructs @this
     */
 	this(Shader.Type type, string sourcePath)
 	{
@@ -204,7 +213,10 @@ class Shader
 		    return GL_VERTEX_SHADER;
 		case Type.Fragment:
 		    return GL_FRAGMENT_SHADER;
+		default:
+		    break;
 	    }
+	    assert(0);
 	}
 }
 
@@ -358,8 +370,6 @@ Inputs:
 	VertexArray to be formatted
     _implicit_ _*REQUIRED*_ currently bound @Buffer object:
 	Buffer from which to get the data pointer
-Outputs:
-    none
 */
 void setup(AttributeFormat format)
 {
@@ -372,36 +382,67 @@ void setup(AttributeFormat format)
 	format.pointer);
 }
 
-class VertexArray
+/*
+@VertexArray class.
+    Represents an opengl Vertex Array Object (VAO).
+	A VAO relates Opengl Buffers and Vertex Formats.
+*/
+class VertexArray(VertexType)
 {
     public:
+    /*
+    @VertexArray constructor
+	Generates and empty VAO and saves it's name
+    */
 	this()
 	{
 	    glGenVertexArrays(1, &m_vertexArrayName);
 	}
+    /*
+    @VertexArray destructor
+	Deallocates the VAO
+    */
 	~this()
 	{
 	    glDeleteVertexArrays(1, &m_vertexArrayName);
 	}
 
+    /*
+    @use method
+	Associates @this Vertex Array with the Buffer @buffer and the format given by the type
+	@VertexType.
+
+    Inputs:
+	@buffer(@Buffer):
+	    Buffer to associate with this @VertexArray and this format
+    */
 	void use(Buffer buffer)
 	{
 	    bind();
 	    buffer.bind();
-	    Vertex.formats.each!setup;
+	    VertexType.formats.each!setup;
 	    buffer.unbind();
 	    unbind();
 	}
 
+    /*
+    @bind method
+	Binds @this VertexArray to the opengl context
+    */
 	void bind()
 	{
 	    glBindVertexArray(m_vertexArrayName);
 	}
+    /*
+    @unbind method
+	Unbinds any VertexArray from the opengl context
+    */
 	void unbind()
 	{
 	    glBindVertexArray(0);
 	}
 
     private:
+    // opengl name of the VAO managed by @this
 	GLuint m_vertexArrayName;
 }
