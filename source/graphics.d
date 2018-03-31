@@ -184,6 +184,8 @@ class Shader
 		writeln("compilation failed");
 		writeln(info);
 		glDeleteShader(shaderName);
+
+		shaderName = 0;
 	    }
 	    else
 	    {
