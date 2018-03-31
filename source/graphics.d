@@ -100,8 +100,7 @@ class Window
 	many 'Shader's.
 */
 class Shader
-{
-    public:
+{ public:
     /*
     @Shader.Type enum.
     	Contains the types of @Shader there can be.
