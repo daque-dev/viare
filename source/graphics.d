@@ -166,13 +166,16 @@ class Shader
     */
 	static GLuint compileShader(Type type, string sourcePath)
 	{
+	    // Create and compile
 	    GLuint shaderName = glCreateShader(typeToGlenum(type));
 	    const char* sourceCodeZ = toStringz(readText(sourcePath));
 	    glShaderSource(shaderName, 1, &sourceCodeZ, null);
 	    glCompileShader(shaderName);
 
+	    // Error checking
 	    GLint compilationSuccess = 0;
 	    glGetShaderiv(shaderName, GL_COMPILE_STATUS, &compilationSuccess);
+	    // Error case
 	    if(compilationSuccess == GL_FALSE)
 	    {
 		GLint logSize = 0;
@@ -187,7 +190,7 @@ class Shader
 
 		shaderName = 0;
 	    }
-	    else
+	    else // Success case
 	    {
 		writeln("compilation success for : ", sourcePath);
 	    }
@@ -235,11 +238,6 @@ class Buffer
     /*
     @Buffer constructor.
 	Constructs a new @Buffer.
-
-    Inputs:
-	none
-    Outputs:
-	Constructs @this
     */
 	this()
 	{
@@ -259,8 +257,6 @@ class Buffer
 	    Pointer to the data to be sent
 	@size(@size_t):
 	    Size in bytes of the data to be sent
-    Outpus:
-	none
     */
 	void bufferData(void* data, size_t size)
 	{
