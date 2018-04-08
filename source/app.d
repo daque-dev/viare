@@ -2,17 +2,15 @@
 
 import std.stdio;
 import std.file;
+import std.ascii;
+import std.uni;
 
 import derelict.sdl2.sdl;
 
 import viare.abst.world;
 import viare.geometry;
 import viare.graphics;
-
-template sdl(string typename)
-{
-    mixin("alias sdl = SDL_" ~ typename ~ ";");
-}
+import viare.sdlize;
 
 void main()
 {
@@ -50,7 +48,11 @@ void main()
     window.render(vertexArray);
     window.print();
 
-    sdl!"Delay"(1000);
+    sdl.delay(1000);
+
+    float[3] v;
+    v[0] = 10.5;
+    writeln(v.opDispatch!("x"));
 
     return;
 }
