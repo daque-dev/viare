@@ -82,6 +82,22 @@ class Window
 	    SDL_DestroyWindow(m_window);
 	}
 
+	void clear()
+	{
+	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+
+	void render(T)(VertexArray!T vao)
+	{
+	    vao.bind();
+	    glDrawArrays(GL_TRIANGLES, 0, 3);
+	}
+	
+	void print()
+	{
+	    SDL_GL_SwapWindow(m_window);
+	}
+
     private:
     // Internal SDL2 window handle.
 	SDL_Window* m_window;
@@ -144,6 +160,11 @@ class Shader
 	    m_shaderGlName = compileShader(type, sourcePath);
 	}
 
+	~this()
+	{
+	    glDeleteShader(m_shaderGlName);
+	}
+
     private:
     // Internal OpenGL Handle (aka name) to the shader object.
 	GLuint m_shaderGlName;
@@ -179,15 +200,17 @@ class Shader
 	    if(compilationSuccess == GL_FALSE)
 	    {
 		GLint logSize = 0;
-		glGetShaderiv(shaderName, GL_INFO_LOG_LENGTH, &logSize);
 		GLchar[] errorLog;
+
+		glGetShaderiv(shaderName, GL_INFO_LOG_LENGTH, &logSize);
 		errorLog.length = logSize;
 		glGetShaderInfoLog(shaderName, logSize, &logSize, &errorLog[0]);
 		char[] info = fromStringz(&errorLog[0]);
+
 		writeln("compilation failed");
 		writeln(info);
-		glDeleteShader(shaderName);
 
+		glDeleteShader(shaderName);
 		shaderName = 0;
 	    }
 	    else // Success case
@@ -222,6 +245,73 @@ class Shader
 	    }
 	    assert(0);
 	}
+}
+
+/*
+@Program class
+    Represents a Program Opengl Object.
+	A Program is a group of Opengl Shaders which will be linked together.
+	A Program is  a program to be executed by the GPU to each of the Vertices of a model.
+*/
+class Program
+{
+    public:
+	this()
+	{
+	    m_programGlName = glCreateProgram();
+	}
+	this(Shader[] shaders)
+	{
+	    this();
+	    shaders.each!(s => this.attach(s));
+	}
+
+	~this()
+	{
+	    glDeleteProgram(m_programGlName);
+	}
+    /*
+    @attach method
+	attaches the shader @shader to @this program
+
+    Inputs:
+	@shader(@Shader):
+	    Shader to be attached
+    */
+	void attach(Shader shader)
+	{
+	    glAttachShader(m_programGlName, shader.m_shaderGlName);
+	}
+    /*
+    @link method
+	links the current attached shaders
+    */
+	void link()
+	{
+	    glLinkProgram(m_programGlName);
+
+	    GLint isLinked = 0;
+	    glGetProgramiv(m_programGlName, GL_LINK_STATUS, cast(int *)&isLinked);
+	    if(isLinked == GL_FALSE)
+	    {
+		writeln("linking failed");
+	    }
+	    else
+	    {
+		writeln("linking success");
+	    }
+	}
+
+	void use()
+	{
+	    glUseProgram(m_programGlName);
+	}
+
+
+    private:
+    // associated Opengl Object Program's name
+	GLuint m_programGlName;
+
 }
 
 /*

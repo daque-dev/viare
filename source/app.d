@@ -17,15 +17,38 @@ template sdl(string typename)
 void main()
 {
     Window window = new Window("viare", 800, 600);
-    Shader shader = new Shader(Shader.Type.Vertex, "shaders/test.glsl");
 
-    sdl!"Delay"(1000);
+    Shader vertexShader = new Shader(Shader.Type.Vertex, "shaders/vertexdef.glsl");
+    Shader fragmentShader = new Shader(Shader.Type.Fragment, "shaders/fragmentdef.glsl");
 
-    sdl!"Window"* windowptr = sdl!"CreateWindow"("this is a test",
-	sdl!"WINDOWPOS_CENTERED", sdl!"WINDOWPOS_CENTERED",
-	1000, 300, sdl!"WINDOW_SHOWN");
+    Program program = new Program([vertexShader, fragmentShader]);
+    program.link();
 
-    writeln("created");
+
+    Vertex[] vertices = [
+	{
+	    position: {-0.5, -0.5, 0},
+	    color: {1.0, 0.0, 0.0}
+	},
+	{
+	    position: {0.5, -0.5, 0},
+	    color: {0.0, 1.0, 0.0}
+	},
+	{
+	    position: {0, 0.5, 0},
+	    color: {0.0, 0.0, 1.0}
+	}];
+
+    Buffer buffer = new Buffer();
+    buffer.bufferData(vertices.ptr, Vertex.sizeof * vertices.length);
+
+    VertexArray!Vertex vertexArray = new VertexArray!Vertex();
+    vertexArray.use(buffer);
+
+    window.clear();
+    program.use();
+    window.render(vertexArray);
+    window.print();
 
     sdl!"Delay"(1000);
 
