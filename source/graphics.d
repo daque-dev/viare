@@ -9,6 +9,7 @@ import derelict.opengl;
 import derelict.sdl2.sdl;
 
 import viare.geometry;
+import viare.sdlize;
 
 /*
 @(static this) module constructor.
@@ -27,9 +28,9 @@ static this()
     DerelictSDL2.load(SharedLibVersion(2, 0, 2));
     DerelictGL3.load();
 
-    if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
+    if(sdl.Init(sdl.INIT_EVERYTHING) < 0)
     {
-	writeln("sdl init failed: ", fromStringz(SDL_GetError()));
+	writeln("sdl init failed: ", fromStringz(sdl.getError()));
     }
 }
 
@@ -64,16 +65,16 @@ class Window
     */
 	this(string name, uint width, uint height)
 	{
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE); 
+            sdlgl.setAttribute(sdlgl.CONTEXT_MAJOR_VERSION, 3);
+            sdlgl.setAttribute(sdlgl.CONTEXT_MINOR_VERSION, 3);
+            sdlgl.setAttribute(sdlgl.CONTEXT_PROFILE_MASK, sdlgl.CONTEXT_PROFILE_CORE); 
 	    
-            m_window = SDL_CreateWindow(name.toStringz(),
-		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+            m_window = sdl.CreateWindow(name.toStringz(),
+		sdl.WINDOWPOS_CENTERED, sdl.WINDOWPOS_CENTERED,
 		width, height,
-		SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+		sdl.WINDOW_SHOWN | sdl.WINDOW_OPENGL);
 
-	    m_glContext = SDL_GL_CreateContext(m_window);
+	    m_glContext = sdlgl.createContext(m_window);
 
 	    DerelictGL3.reload();
 	}
@@ -83,7 +84,7 @@ class Window
     */
 	~this()
 	{
-	    SDL_DestroyWindow(m_window);
+	    sdl.DestroyWindow(m_window);
 	}
 
 	void clear()
@@ -91,7 +92,7 @@ class Window
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	void render(T)(VertexArray!T vao)
+	void render(VertexArray vao)
 	{
 	    vao.bind();
 	    glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -99,14 +100,14 @@ class Window
 	
 	void print()
 	{
-	    SDL_GL_SwapWindow(m_window);
+	    sdlgl.SwapWindow(m_window);
 	}
 
     private:
     // Internal SDL2 window handle.
-	SDL_Window* m_window;
+	sdl.Window* m_window;
     // Internal SDL2-OpenGL Context handle.
-	SDL_GLContext m_glContext;
+	sdl.GLContext m_glContext;
 }
 
 
@@ -120,7 +121,8 @@ class Window
 	many 'Shader's.
 */
 class Shader
-{ public:
+{ 
+    public:
     /*
     @Shader.Type enum.
     	Contains the types of @Shader there can be.
@@ -374,18 +376,18 @@ class Buffer
 	GLuint m_bufferName;
 }
 
-/*
+/++
 @Vertex struct.
     Gives the necessary information to represent a Vertex in a 3D model.
-*/
++/
 struct Vertex
 {
-    // Position of the vertex
-    Vector!float position;
-    // Color of the vertex
-    Vector!float color;
+    /// Position of the vertex
+    Vector position;
+    /// Color of the vertex
+    Vector color;
 
-    /*
+    /++
 	OpenGL requires us to give it the format in which data is stored in GPU.
 	Vertex.formats provides this information about this Vertex format in particular.
 
@@ -394,11 +396,10 @@ struct Vertex
 	OpenGL thinks of every Vertex as having _attributes_, as we think of _members_ of a struct.
 	This Vertex struct contains two _attributes_, they are the @position and the @color.
 
-	See @AttributeFormat for more info about the data needed by OpenGL.
-    */
+	See AttributeFormat for more info about the data needed by OpenGL.
+    +/
     static AttributeFormat[] formats = 
     [
-	//position attribute format
 	{
 	    index: 0, 
 	    size: 3, 
@@ -406,13 +407,7 @@ struct Vertex
 	    normalized: GL_FALSE, 
 	    stride: cast(GLsizei)Vertex.sizeof, 
 	    pointer: cast(void*)Vertex.position.offsetof
-	    /*
-	    EXPLANATION:
-		position is the attribute no. 0, contains 3 components each of type float which
-		won't (GL_FALSE) be normalized.
-	    */
 	},
-	//color attribute format
 	{
 	    index: 1, 
 	    size: 3, 
@@ -424,25 +419,24 @@ struct Vertex
     ];
 };
 
-/*
-@AttributeFormat
+/++
     Data needed to represent a particular attribute for a Vertex.
-*/
++/
 struct AttributeFormat
 {
-    // OpenGL identifies each attribute by an @index
+    /// OpenGL identifies each attribute by an @index
     GLuint index;
-    // No. of components of this attribute
+    /// No. of components of this attribute
     GLint size;
-    // Data type of the components of this attribute
+    /// Data type of the components of this attribute
     GLenum type;
-    // Does it need to be _normalized_(Clipped to a range of 0.0 - 1.0)?
+    /// Does it need to be _normalized_(Clipped to a range of 0.0 - 1.0)?
     GLboolean normalized;
-    // Space between each appearance of this attribute in an array of Vertices, equivalently, the
-    // size of each Vertex
+    /// Space between each appearance of this attribute in an array of Vertices, equivalently, the
+    /// size of each Vertex
     GLsizei stride;
-    // Offset to first appearance of this attribute in an array of Vertices, equivalently, the
-    // offset of this member in the Vertex structure
+    /// Offset to first appearance of this attribute in an array of Vertices, equivalently, the
+    /// offset of this member in the Vertex structure
     const GLvoid* pointer;
 };
 
@@ -478,7 +472,7 @@ void setup(AttributeFormat format)
     Represents an opengl Vertex Array Object (VAO).
 	A VAO relates Opengl Buffers and Vertex Formats.
 */
-class VertexArray(VertexType)
+class VertexArray
 {
     public:
     /*
@@ -507,7 +501,7 @@ class VertexArray(VertexType)
 	@buffer(@Buffer):
 	    Buffer to associate with this @VertexArray and this format
     */
-	void use(Buffer buffer)
+	void use(VertexType)(Buffer buffer)
 	{
 	    bind();
 	    buffer.bind();

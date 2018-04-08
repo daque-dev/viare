@@ -12,6 +12,8 @@ import viare.geometry;
 import viare.graphics;
 import viare.sdlize;
 
+alias Vectori = float[3];
+
 void main()
 {
     Window window = new Window("viare", 800, 600);
@@ -25,23 +27,23 @@ void main()
 
     Vertex[] vertices = [
 	{
-	    position: {-0.5, -0.5, 0},
-	    color: {1.0, 0.0, 0.0}
+	    position: [-0.5, -0.5, 0],
+	    color: [1.0, 0.0, 0.0]
 	},
 	{
-	    position: {0.5, -0.5, 0},
-	    color: {0.0, 1.0, 0.0}
+	    position: [0.5, -0.5, 0],
+	    color: [0.0, 1.0, 0.0]
 	},
 	{
-	    position: {0, 0.5, 0},
-	    color: {0.0, 0.0, 1.0}
+	    position: [0, 0.5, 0],
+	    color: [0.0, 0.0, 1.0]
 	}];
 
     Buffer buffer = new Buffer();
     buffer.bufferData(vertices.ptr, Vertex.sizeof * vertices.length);
 
-    VertexArray!Vertex vertexArray = new VertexArray!Vertex();
-    vertexArray.use(buffer);
+    VertexArray vertexArray = new VertexArray();
+    vertexArray.use!Vertex(buffer);
 
     window.clear();
     program.use();
@@ -49,10 +51,6 @@ void main()
     window.print();
 
     sdl.delay(1000);
-
-    float[3] v;
-    v[0] = 10.5;
-    writeln(v.opDispatch!("x"));
 
     return;
 }
