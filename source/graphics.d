@@ -24,7 +24,7 @@ import viare.geometry;
 */
 static this()
 {
-    DerelictSDL2.load();
+    DerelictSDL2.load(SharedLibVersion(2, 0, 2));
     DerelictGL3.load();
 
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
