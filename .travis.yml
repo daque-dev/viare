@@ -1,0 +1,15 @@
+language: d
+
+d:
+  - dmd
+  - gdc
+  - ldc
+
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y libsdl2-2.0
+
+script:
+   - dub test -b unittest-cov --compiler=${DC}
+after_success:
+   - bash <(curl -s https://codecov.io/bash)

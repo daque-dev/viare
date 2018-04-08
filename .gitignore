@@ -28,6 +28,9 @@ docs/
 # Code coverage
 *.lst
 
+# Test Library
+__test__library__
+
 ### Linux ###
 *~
 asd
