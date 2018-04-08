@@ -1,5 +1,8 @@
 # ViaRE 
 
+[![Travis](https://img.shields.io/travis/davidomarf/viare.svg?style=flat-square)](https://travis-ci.org/davidomarf/viare)
+
+
 **ViaRE is a Real Emulator.** (Yup, a recursive acronym)
 
 Also, by the nature of ViaRE, and its deep relations with the concepts of
