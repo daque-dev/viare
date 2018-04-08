@@ -12,8 +12,6 @@ For now, we just **avviamo** the project, and we don't have any realease of it.
 Because of it, this README will be only useful to developers who may want to
 get a working copy of the code.
 
----
-
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your
@@ -102,9 +100,6 @@ This project is licensed under the MIT License - see [LICENSE.md](LICENSE.md) fi
 on [generating fantasy maps](http://mewo2.com/notes/terrain/) and [naming languages](http://mewo2.com/notes/naming-language/)
 * **Amit Patel**, [@redblobgames](https://twitter.com/redblobgames), for his writing about
 [polygonal map generation](http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/)
-* etc
-
-
 
 <!---
 ### Break down into end to end tests
