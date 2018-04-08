@@ -40,8 +40,8 @@ void main()
     Buffer buffer = new Buffer();
     buffer.bufferData(vertices.ptr, Vertex.sizeof * vertices.length);
 
-    VertexArray!Vertex vertexArray = new VertexArray!Vertex();
-    vertexArray.use(buffer);
+    VertexArray vertexArray = new VertexArray();
+    vertexArray.use!Vertex(buffer);
 
     window.clear();
     program.use();
@@ -49,10 +49,6 @@ void main()
     window.print();
 
     sdl.delay(1000);
-
-    float[3] v;
-    v[0] = 10.5;
-    writeln(v.opDispatch!("x"));
 
     return;
 }
