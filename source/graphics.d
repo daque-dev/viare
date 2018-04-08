@@ -64,7 +64,11 @@ class Window
     */
 	this(string name, uint width, uint height)
 	{
-	    m_window = SDL_CreateWindow(name.toStringz(),
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE); 
+	    
+            m_window = SDL_CreateWindow(name.toStringz(),
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		width, height,
 		SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
