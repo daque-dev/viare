@@ -10,7 +10,7 @@ interface IWorld
     // Returns the element in the position (i, j, k)
     Tile getTile(int i, int j, int k);
     // Returns the size of the world
-    Vector!uint getSize();
+    uint[3] getSize();
 }
 
 struct Tile

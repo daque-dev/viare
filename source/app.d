@@ -12,6 +12,8 @@ import viare.geometry;
 import viare.graphics;
 import viare.sdlize;
 
+alias Vectori = float[3];
+
 void main()
 {
     Window window = new Window("viare", 800, 600);
@@ -25,16 +27,16 @@ void main()
 
     Vertex[] vertices = [
 	{
-	    position: {-0.5, -0.5, 0},
-	    color: {1.0, 0.0, 0.0}
+	    position: [-0.5, -0.5, 0],
+	    color: [1.0, 0.0, 0.0]
 	},
 	{
-	    position: {0.5, -0.5, 0},
-	    color: {0.0, 1.0, 0.0}
+	    position: [0.5, -0.5, 0],
+	    color: [0.0, 1.0, 0.0]
 	},
 	{
-	    position: {0, 0.5, 0},
-	    color: {0.0, 0.0, 1.0}
+	    position: [0, 0.5, 0],
+	    color: [0.0, 0.0, 1.0]
 	}];
 
     Buffer buffer = new Buffer();
