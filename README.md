@@ -8,6 +8,7 @@ Also, by the nature of ViaRE, and its deep relations with the concepts of
 And the italian word **avviare** (to start, initiate, begin) fitted perfectly.
 
 For now, we just **avviamo** the project, and we don't have any realease of it.
+In the future, ViARE will be a game with powerful emulation properties.
 
 Because of it, this README will be only useful to developers who may want to
 get a working copy of the code.
