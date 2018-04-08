@@ -1,6 +1,8 @@
 # ViaRE 
 
 [![Travis](https://img.shields.io/travis/davidomarf/viare.svg?style=flat-square)](https://travis-ci.org/davidomarf/viare)
+[![Codecov](https://img.shields.io/codecov/c/github/davidomarf/viare.svg?style=flat-square)](https://codecov.io/gh/davidomarf/viare)
+
 
 
 **ViaRE is a Real Emulator.** (Yup, a recursive acronym)
