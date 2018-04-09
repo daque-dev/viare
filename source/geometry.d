@@ -5,24 +5,27 @@ import std.math;
 import std.algorithm;
 import std.functional;
 import std.array;
+import std.stdio;
 
 alias Vector = float[3];
 
-double magnitude(Vector v){
+pure float magnitude(Vector v)
+{
     return pipe!(array,
-        map!(a => cast(real)(a)),
+        map!(a => cast(float)(a)),
         map!(a => a * a),
         sum, sqrt)(v);
 }
 
-auto normalize(Vector v){
-    Vector r =  v[] / magnitude (v);
-    return r;
-    }
+pure Vector normalize(Vector v)
+{
+    Vector normalized =  v[] / magnitude (v);
+    return normalized;
+}
 
 unittest
 {
-    // Consider floating point accuracy problems.
+    // Consider floating point *inexistent* accuracy problems.
     enum tolerance = 1e-12;
 
     // Inputs to be tested
@@ -35,12 +38,18 @@ unittest
 
     // Magnitude
     auto magnitudes = map!magnitude(vectors);
-    assert(abs(magnitudes[0] - sqrt(14.0)) < tolerance && magnitudes[0] >= 0);
-    assert(abs(magnitudes[1] - sqrt(14.0)) < tolerance && magnitudes[0] >= 0);
-    assert(abs(magnitudes[2] - sqrt(3.0))  < tolerance && magnitudes[0] >= 0);
-    assert(abs(magnitudes[3]) < tolerance);
+    assert(magnitudes.array[] == [sqrt(14.0f), sqrt(14.0f), sqrt(3.0f), 0.0f]);
+    assert(magnitudes[0] == sqrt(14.0f));
+    assert(magnitudes[1] == sqrt(14.0f));
+    assert(magnitudes[2] == sqrt(3.0f));
+    assert(magnitudes[3] == 0.0f);
    
     // Normalization
-    auto normalized = map!normalize(vectors).array;
-    // float[][] result = normalized [] - [cast(float) (3.0 / sqrt(14.0)), cast(float) (1.0 /sqrt(14.0)),cast(float) sqrt(2.0/7.0)];
+    auto normalizedVectors = map!normalize(vectors);
+
+    Vector dv0 = normalizedVectors[0][] - [3.0f/sqrt(14.0f), 1.0f/sqrt(14.0f), 2.0f/sqrt(14.0f)];
+    assert(dv0[] == [0, 0, 0], "normalizedVectors[0] delta not equal to 0 vector");
+
+    Vector dv1 = normalizedVectors[1][] + [3.0f/sqrt(14.0f), 1.0f/sqrt(14.0f), 2.0f/sqrt(14.0f)];
+    assert(dv1[] == [0, 0, 0], "normalizedVectors[1] delta not equal to 0 vector");
 }
