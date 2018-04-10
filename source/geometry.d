@@ -21,12 +21,15 @@ if(isFunction!F && functionAttributes!F & FunctionAttribute.pure_)
     return r;
 }
 
+pure float dot(in Vector v, in Vector w)
+{
+    Vector products = v[] * w[];
+    return products.array.sum;
+}
+
 pure float magnitude(Vector v)
 {
-    return pipe!(array,
-        map!(a => cast(float)(a)),
-        map!(a => a * a),
-        sum, sqrt)(v);
+    return sqrt(dot(v, v));
 }
 
 pure Vector normalize(Vector v)
