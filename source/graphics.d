@@ -69,12 +69,12 @@ class Window
             sdlgl.setAttribute(sdlgl.CONTEXT_MINOR_VERSION, 3);
             sdlgl.setAttribute(sdlgl.CONTEXT_PROFILE_MASK, sdlgl.CONTEXT_PROFILE_CORE); 
 	    
-            m_window = sdl.CreateWindow(name.toStringz(),
+            m_window = cast(immutable(sdl.Window*))sdl.CreateWindow(name.toStringz(),
 		sdl.WINDOWPOS_CENTERED, sdl.WINDOWPOS_CENTERED,
 		width, height,
 		sdl.WINDOW_SHOWN | sdl.WINDOW_OPENGL);
 
-	    m_glContext = sdlgl.createContext(m_window);
+	    m_glContext = sdlgl.createContext(getWindow);
 
 	    DerelictGL3.reload();
 	}
@@ -84,7 +84,7 @@ class Window
     */
 	~this()
 	{
-	    sdl.DestroyWindow(m_window);
+	    sdl.DestroyWindow(getWindow);
 	}
 
 	void clear()
@@ -100,12 +100,18 @@ class Window
 	
 	void print()
 	{
-	    sdlgl.SwapWindow(m_window);
+	    sdlgl.SwapWindow(getWindow);
 	}
 
     private:
     // Internal SDL2 window handle.
-	sdl.Window* m_window;
+	immutable(sdl.Window*) m_window;
+
+	sdl.Window* getWindow() 
+	{
+	    return cast(sdl.Window*)m_window;
+	}
+
     // Internal SDL2-OpenGL Context handle.
 	sdl.GLContext m_glContext;
 }
@@ -163,7 +169,7 @@ class Shader
 	this(Shader.Type type, string sourcePath)
 	{
 	    m_type = type;
-	    m_shaderGlName = compileShader(type, sourcePath);
+	    m_shaderGlName = cast(immutable(GLuint))compileShader(type, sourcePath);
 	}
 
 	~this()
@@ -173,9 +179,10 @@ class Shader
 
     private:
     // Internal OpenGL Handle (aka name) to the shader object.
-	GLuint m_shaderGlName;
+	immutable(GLuint) m_shaderGlName;
+
     // Type of the shader.
-	Type m_type;
+	immutable(Type) m_type;
 
     /*
     @Shader.compileShader function.
@@ -316,7 +323,7 @@ class Program
 
     private:
     // associated Opengl Object Program's name
-	GLuint m_programGlName;
+	immutable(GLuint) m_programGlName;
 
 }
 
@@ -337,11 +344,23 @@ class Buffer
     */
 	this()
 	{
-	    glGenBuffers(1, &m_bufferName);
+	    m_bufferName = genBuffer();
 	}
 	~this()
 	{
-	    glDeleteBuffers(1, &m_bufferName);
+	    deleteBuffer(m_bufferName);
+	}
+
+	static GLuint genBuffer()
+	{
+	    GLuint buffer;
+	    glGenBuffers(1, &buffer);
+	    return buffer;
+	}
+
+	static void deleteBuffer(GLuint buffer)
+	{
+	    glDeleteBuffers(1, &buffer);
 	}
 
     /*
@@ -373,7 +392,7 @@ class Buffer
 
     private:
     // opengl name of the buffer managed by @this
-	GLuint m_bufferName;
+	immutable(GLuint) m_bufferName;
 }
 
 /++
