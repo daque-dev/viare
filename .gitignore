@@ -35,6 +35,7 @@ __test__library__
 *~
 asd
 viare
+viare-test-library
 
 # temporary files which can be created if a process still has a handle open of a deleted file
 .fuse_hidden*
