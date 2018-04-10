@@ -2,8 +2,6 @@ language: d
 
 d:
   - dmd
-  - gdc
-  - ldc
 
 before_install:
   - sudo apt-get -qq update
