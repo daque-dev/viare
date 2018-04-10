@@ -33,6 +33,15 @@ pure float magnitude(Vector v)
 }
 
 pure Vector normalize(Vector v)
+in
+{
+    assert(v.magnitude > 0.0f, "cannot normalize a zero vector");
+}
+out(result)
+{
+    assert(approxEqual(result.magnitude, 1.0f));
+}
+do
 {
     Vector normalized =  v[] / magnitude (v);
     return normalized;
