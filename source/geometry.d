@@ -56,24 +56,22 @@ unittest
     Vector[] vectors = [
         [3, 1, 2],
         [-3, -1, -2],
-        [1, 1, 1],
-        [0, 0, 0]
+	[1, 1, 1], 
+	[0, 0, 0]
     ];
 
     // Magnitude
     auto magnitudes = map!magnitude(vectors);
     assert(magnitudes.array[] == [sqrt(14.0f), sqrt(14.0f), sqrt(3.0f), 0.0f]);
-    assert(magnitudes[0] == sqrt(14.0f));
-    assert(magnitudes[1] == sqrt(14.0f));
-    assert(magnitudes[2] == sqrt(3.0f));
-    assert(magnitudes[3] == 0.0f);
    
     // Normalization
-    auto normalizedVectors = map!normalize(vectors);
+    auto normalizeds = map!normalize(vectors.take(3));
 
-    Vector dv0 = normalizedVectors[0][] - [3.0f/sqrt(14.0f), 1.0f/sqrt(14.0f), 2.0f/sqrt(14.0f)];
-    assert(dv0[] == [0, 0, 0], "normalizedVectors[0] delta not equal to 0 vector");
+    Vector[] expected;
+    expected.length = 3;
+    expected[0] = [3.0f, 1.0f, 2.0f] / sqrt(14.0f);
+    expected[1] = [-3.0f, -1.0f, -2.0f] / sqrt(14.0f);
+    expected[2] = [1.0f, 1.0f, 1.0f] / sqrt(3.0f);
 
-    Vector dv1 = normalizedVectors[1][] + [3.0f/sqrt(14.0f), 1.0f/sqrt(14.0f), 2.0f/sqrt(14.0f)];
-    assert(dv1[] == [0, 0, 0], "normalizedVectors[1] delta not equal to 0 vector");
+    assert(equal(expected, normalizeds));
 }
