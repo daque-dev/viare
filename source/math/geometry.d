@@ -1,4 +1,4 @@
-module viare.geometry;
+module viare.math.geometry;
 
 import std.traits;
 import std.math;
