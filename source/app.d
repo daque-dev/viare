@@ -8,7 +8,7 @@ import std.uni;
 import derelict.sdl2.sdl;
 
 import viare.abst.world;
-import viare.geometry;
+import viare.math.geometry;
 import viare.graphics;
 import viare.sdlize;
 

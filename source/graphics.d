@@ -8,7 +8,7 @@ import std.algorithm;
 import derelict.opengl;
 import derelict.sdl2.sdl;
 
-import viare.geometry;
+import viare.math.geometry;
 import viare.sdlize;
 
 /*

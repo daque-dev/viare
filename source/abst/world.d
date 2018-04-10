@@ -1,6 +1,6 @@
 module viare.abst.world;
 
-import viare.geometry;
+import viare.math.geometry;
 
 /*
 Common interface for 'World's, which are 3D array's of 'Tile's

@@ -12,15 +12,6 @@ import std.range;
 
 alias Vector = float[3];
 
-pure float sigma(alias F)(int n, int N)
-if(isFunction!F && functionAttributes!F & FunctionAttribute.pure_)
-{
-    float r = 0;
-    for(int i = n; i < N; i++)
-	r += F(i);
-    return r;
-}
-
 pure float dot(in Vector v, in Vector w)
 {
     Vector products = v[] * w[];
