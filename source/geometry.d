@@ -3,11 +3,23 @@ module viare.geometry;
 import std.traits;
 import std.math;
 import std.algorithm;
+import std.algorithm.comparison;
 import std.functional;
 import std.array;
 import std.stdio;
+import std.conv;
+import std.range;
 
 alias Vector = float[3];
+
+pure float sigma(alias F)(int n, int N)
+if(isFunction!F && functionAttributes!F & FunctionAttribute.pure_)
+{
+    float r = 0;
+    for(int i = n; i < N; i++)
+	r += F(i);
+    return r;
+}
 
 pure float magnitude(Vector v)
 {
