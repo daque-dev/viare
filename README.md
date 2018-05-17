@@ -1,7 +1,7 @@
 # ViaRE 
 
-[![Travis](https://img.shields.io/travis/davidomarf/viare.svg?style=flat-square)](https://travis-ci.org/davidomarf/viare)
-[![Codecov](https://img.shields.io/codecov/c/github/davidomarf/viare.svg?style=flat-square)](https://codecov.io/gh/davidomarf/viare)
+[![Travis](https://img.shields.io/travis/viare/viare.svg?style=flat-square)](https://travis-ci.org/viare/viare)
+[![Codecov](https://img.shields.io/codecov/c/github/viare/viare.svg?style=flat-square)](https://codecov.io/gh/viare/viare)
 
 
 
@@ -67,7 +67,7 @@ You'll need [Git](https://git-scm.com/) installed, to clone the repository*.
 
 ```
 # Clone this repository
-$ git clone https://github.com/davidomarf/viare
+$ git clone https://github.com/viare/viare
 
 # Go into the repository
 $ cd viare
@@ -91,7 +91,7 @@ This will run every `unittest` inside sourcecode.
 
 ## Authors
 
-- [**bitobs**](https://github.com/bitobs) - *Initial work* 
+- [**quevangel**](https://github.com/quevangel) - *Initial work* 
 - [**davidomarf**](https://github.com/davidomarf) - *Initial work*
 
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
