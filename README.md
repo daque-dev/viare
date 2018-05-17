@@ -67,7 +67,7 @@ You'll need [Git](https://git-scm.com/) installed, to clone the repository*.
 
 ```
 # Clone this repository
-$ git clone https://github.com/davidomarf/viare
+$ git clone https://github.com/viare/viare
 
 # Go into the repository
 $ cd viare
