@@ -92,10 +92,11 @@ class Window
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	void render(VertexArray vao)
+	void render(VertexType)(GpuArray!VertexType vertices)
 	{
-	    vao.bind();
-	    glDrawArrays(GL_TRIANGLES, 0, 3);
+	    vertices.bind();
+	    glDrawArrays(GL_TRIANGLES, 0, cast(int) vertices.size());
+	    vertices.unbind();
 	}
 	
 	void print()
@@ -549,4 +550,40 @@ class VertexArray
     private:
     // opengl name of the VAO managed by @this
 	GLuint m_vertexArrayName;
+}
+
+class GpuArray(VertexType)
+{
+    private:
+	Buffer m_buffer;
+	VertexArray m_vao;
+	VertexType[] m_data;
+
+    public:
+	this(VertexType[] data)
+	{
+	    m_data.length = data.length;
+	    m_data[] = data[];
+
+	    m_buffer = new Buffer();
+	    m_vao = new VertexArray();
+
+	    m_buffer.bufferData(data.ptr, VertexType.sizeof * data.length);
+	    m_vao.use!VertexType(m_buffer);
+	}
+
+	void bind()
+	{
+	    m_vao.bind();
+	}
+
+	void unbind()
+	{
+	    m_vao.unbind();
+	}
+
+	ulong size() const
+	{
+	    return m_data.length;
+	}
 }
