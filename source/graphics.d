@@ -7,6 +7,7 @@ import std.algorithm;
 
 import derelict.opengl;
 import derelict.sdl2.sdl;
+import derelict.sdl2.image;
 
 import viare.math.geometry;
 import viare.sdlize;
@@ -26,6 +27,7 @@ import viare.sdlize;
 static this()
 {
     DerelictSDL2.load(SharedLibVersion(2, 0, 2));
+    DerelictSDL2Image.load();
     DerelictGL3.load();
 
     if(sdl.Init(sdl.INIT_EVERYTHING) < 0)
@@ -178,6 +180,7 @@ class Shader
 	    glDeleteShader(m_shaderGlName);
 	}
 
+
     private:
     // Internal OpenGL Handle (aka name) to the shader object.
 	immutable(GLuint) m_shaderGlName;
@@ -320,7 +323,17 @@ class Program
 	{
 	    glUseProgram(m_programGlName);
 	}
+	void unuse()
+	{
+	    glUseProgram(0);
+	}
 
+	void setUniform1i(string uniformName, int val)
+	{
+	    GLint uniformLocation = glGetUniformLocation(m_programGlName, "sampler");
+	    this.use();
+	    glUniform1i(uniformLocation, val);
+	}
 
     private:
     // associated Opengl Object Program's name
@@ -345,11 +358,11 @@ class Buffer
     */
 	this()
 	{
-	    m_bufferName = genBuffer();
+	    m_name = genBuffer();
 	}
 	~this()
 	{
-	    deleteBuffer(m_bufferName);
+	    deleteBuffer(m_name);
 	}
 
 	static GLuint genBuffer()
@@ -383,7 +396,7 @@ class Buffer
 
 	void bind()
 	{
-	    glBindBuffer(GL_ARRAY_BUFFER, m_bufferName);
+	    glBindBuffer(GL_ARRAY_BUFFER, m_name);
 	}
 
 	void unbind()
@@ -393,7 +406,7 @@ class Buffer
 
     private:
     // opengl name of the buffer managed by @this
-	immutable(GLuint) m_bufferName;
+	immutable(GLuint) m_name;
 }
 
 /++
@@ -404,8 +417,7 @@ struct Vertex
 {
     /// Position of the vertex
     Vector position;
-    /// Color of the vertex
-    Vector color;
+    float[2] uv;
 
     /++
 	OpenGL requires us to give it the format in which data is stored in GPU.
@@ -430,11 +442,11 @@ struct Vertex
 	},
 	{
 	    index: 1, 
-	    size: 3, 
+	    size: 2, 
 	    type: GL_FLOAT, 
 	    normalized: GL_TRUE, 
 	    stride: cast(GLsizei)Vertex.sizeof, 
-	    pointer: cast(void*)Vertex.color.offsetof
+	    pointer: cast(void*)Vertex.uv.offsetof
 	}
     ];
 };
@@ -494,6 +506,9 @@ void setup(AttributeFormat format)
 */
 class VertexArray
 {
+    private:
+    // opengl name of the VAO managed by @this
+	immutable(GLuint) m_name;
     public:
     /*
     @VertexArray constructor
@@ -501,7 +516,13 @@ class VertexArray
     */
 	this()
 	{
-	    glGenVertexArrays(1, &m_vertexArrayName);
+	    m_name = genVertexArray();
+	}
+	static GLuint genVertexArray()
+	{
+	    GLuint name;
+	    glGenVertexArrays(1, &name);
+	    return name;
 	}
     /*
     @VertexArray destructor
@@ -509,9 +530,12 @@ class VertexArray
     */
 	~this()
 	{
-	    glDeleteVertexArrays(1, &m_vertexArrayName);
+	    deleteVertexArray(m_name);
 	}
-
+	static void deleteVertexArray(GLuint vertexArrayName)
+	{
+	    glDeleteVertexArrays(1, &vertexArrayName);
+	}
     /*
     @use method
 	Associates @this Vertex Array with the Buffer @buffer and the format given by the type
@@ -536,7 +560,7 @@ class VertexArray
     */
 	void bind()
 	{
-	    glBindVertexArray(m_vertexArrayName);
+	    glBindVertexArray(m_name);
 	}
     /*
     @unbind method
@@ -547,20 +571,17 @@ class VertexArray
 	    glBindVertexArray(0);
 	}
 
-    private:
-    // opengl name of the VAO managed by @this
-	GLuint m_vertexArrayName;
 }
 
-class GpuArray(VertexType)
+class GpuArray(DataType)
 {
     private:
 	Buffer m_buffer;
 	VertexArray m_vao;
-	VertexType[] m_data;
+	DataType[] m_data;
 
     public:
-	this(VertexType[] data)
+	this(DataType[] data)
 	{
 	    m_data.length = data.length;
 	    m_data[] = data[];
@@ -568,8 +589,8 @@ class GpuArray(VertexType)
 	    m_buffer = new Buffer();
 	    m_vao = new VertexArray();
 
-	    m_buffer.bufferData(data.ptr, VertexType.sizeof * data.length);
-	    m_vao.use!VertexType(m_buffer);
+	    m_buffer.bufferData(data.ptr, DataType.sizeof * data.length);
+	    m_vao.use!DataType(m_buffer);
 	}
 
 	void bind()
@@ -586,4 +607,64 @@ class GpuArray(VertexType)
 	{
 	    return m_data.length;
 	}
+}
+
+class Texture
+{
+    private:
+	immutable(GLuint) m_name;
+	immutable(SDL_Surface*) m_surface;
+	immutable(GLenum) m_type;
+    public:
+	this(string imagePath)
+	{
+	    m_type = GL_TEXTURE_2D;
+	    m_surface = cast(immutable(SDL_Surface*)) IMG_Load(imagePath.toStringz());
+	
+	    if(!m_surface)
+	    {
+		writeln("error reading surface ", fromStringz(SDL_GetError()));
+		return;
+	    }    
+	    if(m_surface.format.format != SDL_PIXELFORMAT_RGBA32)
+	    {
+		writeln("unsupported pixel format");
+		return;
+	    }
+
+	    m_name = genTexture();
+	    this.bind();
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_surface.w, m_surface.h, 0, GL_RGBA,
+		    GL_UNSIGNED_BYTE, m_surface.pixels);
+	    this.unbind();
+	}
+
+	void bind()
+	{
+	    glBindTexture(m_type, m_name);
+	}
+	void unbind()
+	{
+	    glBindTexture(m_type, 0);
+	}
+
+	GLuint name()
+	{
+	    return m_name;
+	}
+
+	static GLuint genTexture()
+	{
+	    GLuint name;
+	    glGenTextures(1, &name);
+	    return name;
+	}
+}
+
+void setTextureUnit(int textureUnit, Texture texture) 
+{
+    glActiveTexture(GL_TEXTURE0 + textureUnit);
+    glBindTexture(texture.m_type, texture.m_name);
 }

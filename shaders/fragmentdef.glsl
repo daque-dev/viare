@@ -2,9 +2,13 @@
 
 out vec4 FragColor;
 
-in vec4 vertexColor;
+in vec2 uv;
+
+uniform sampler2D sampler;
 
 void main()
 {
-    FragColor = vertexColor;
+    //FragColor = texture(sampler, uv).rgba;
+    
+    FragColor = vec4(texture(sampler, uv).rgba);
 }
