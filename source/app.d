@@ -32,20 +32,37 @@ void main()
     // Model setup
     GpuArray!Vertex square = new GpuArray!Vertex(SQUARE_VERTICES.dup);
     Texture testTexture = new Texture("res/test.png");
+    uint[] whiteBlock;
+    whiteBlock.length = 100 * 100;
+    whiteBlock[0 .. $] = 0xffffffff;
+    testTexture.updateRegion(0, 0, 100, 100, whiteBlock);
+    //Texture testTexture = new Texture(200, 200);
     // 
 
     // Drawing operations
-    window.clear();
-    program.use();
+    while(window.isOpen())
+    {
+	window.clear();
+	program.use();
 
-    setTextureUnit(0, testTexture);
-    window.render(square);
+	setTextureUnit(0, testTexture);
+	window.render(square);
 
-    window.print();
-    //
+	window.print();
 
-    // Delay
-    sdl.delay(1000);
+	SDL_Event event;
+	while(SDL_PollEvent(&event))
+	{
+	    switch(event.type)
+	    {
+		case SDL_QUIT: 
+		    window.close();
+		    break;
+		default:
+		    break;
+	    }
+	}
+    }
 
     return;
 }
