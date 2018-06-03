@@ -21,10 +21,10 @@ void main()
     Window window = new Window("viare", 800, 600);
 
     // GLSL program
-    Shader vertexShader = new Shader(Shader.Type.Vertex, "shaders/vertexdef.glsl");
-    Shader fragmentShader = new Shader(Shader.Type.Fragment, "shaders/fragmentdef.glsl");
-
-    Program program = new Program([vertexShader, fragmentShader]);
+    Program program = new Program([
+		new Shader(Shader.Type.Vertex, "shaders/vertexdef.glsl"),
+		new Shader(Shader.Type.Fragment, "shaders/fragmentdef.glsl")
+	    ]);
     program.link();
     program.setUniform1i("sampler", 0);
     //
@@ -32,6 +32,7 @@ void main()
     // Model setup
     GpuArray!Vertex square = new GpuArray!Vertex(SQUARE_VERTICES.dup);
     Texture testTexture = new Texture("res/test.png");
+    // 
 
     // Drawing operations
     window.clear();
@@ -41,6 +42,7 @@ void main()
     window.render(square);
 
     window.print();
+    //
 
     // Delay
     sdl.delay(1000);

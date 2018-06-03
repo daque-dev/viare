@@ -7,15 +7,15 @@ import viare.graphics;
 immutable(Vertex)[] SQUARE_VERTICES = [
     // 1st triangle
     {
-	position: [-1.0, -1.0, 0],
+	position: [-0.5, -0.5, 0],
 	uv: [0, 0]
     },
     {
-	position: [+1.0, -1.0, 0],
+	position: [+0.5, -0.5, 0],
 	uv: [1, 0]
     },
     {
-	position: [-1.0, +1.0, 0],
+	position: [-0.5, +0.5, 0],
 	uv: [0, 1]
     },
 
@@ -25,11 +25,11 @@ immutable(Vertex)[] SQUARE_VERTICES = [
 	uv: [1, 1]
     },
     {
-	position: [+1, -1, 0],
+	position: [+0.5, -0.5, 0],
 	uv: [1, 0]
     },
     {
-	position: [-1, +1, 0],
+	position: [-0.5, +0.5, 0],
 	uv: [0, 1]
     }
 ];
