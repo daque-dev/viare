@@ -75,6 +75,7 @@ class Window
 		sdl.WINDOWPOS_CENTERED, sdl.WINDOWPOS_CENTERED,
 		width, height,
 		sdl.WINDOW_SHOWN | sdl.WINDOW_OPENGL);
+	    m_isOpen = m_window != null;
 
 	    m_glContext = sdlgl.createContext(getWindow);
 
@@ -86,8 +87,17 @@ class Window
     */
 	~this()
 	{
-	    sdl.DestroyWindow(getWindow);
+	    this.close();
 	}
+
+	void close()
+	{
+	    if(isOpen())
+		sdl.DestroyWindow(getWindow);
+	    m_isOpen = false;
+	}
+
+	bool isOpen() { return m_isOpen; }
 
 	void clear()
 	{
@@ -109,6 +119,7 @@ class Window
     private:
     // Internal SDL2 window handle.
 	immutable(sdl.Window*) m_window;
+	bool m_isOpen = false;
 
 	sdl.Window* getWindow() 
 	{
@@ -613,13 +624,19 @@ class Texture
 {
     private:
 	immutable(GLuint) m_name;
-	immutable(SDL_Surface*) m_surface;
 	immutable(GLenum) m_type;
+
+	immutable(SDL_Surface*) m_surface;
+	immutable(uint) m_width, m_height;
+
+	bool m_isBound = false;
     public:
 	this(string imagePath)
 	{
 	    m_type = GL_TEXTURE_2D;
 	    m_surface = cast(immutable(SDL_Surface*)) IMG_Load(imagePath.toStringz());
+	    m_width = m_surface.w;
+	    m_height = m_surface.h;
 	
 	    if(!m_surface)
 	    {
@@ -634,20 +651,80 @@ class Texture
 
 	    m_name = genTexture();
 	    this.bind();
-	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	    this.setParameter!"i"(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	    this.setParameter!"i"(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_surface.w, m_surface.h, 0, GL_RGBA,
 		    GL_UNSIGNED_BYTE, m_surface.pixels);
 	    this.unbind();
 	}
 
+	this(uint width, uint height, uint clearColor = 0xffffffff)
+	{
+	    m_width = width;
+	    m_height = height;
+
+	    m_name = genTexture();
+	    m_type = GL_TEXTURE_2D;
+	    m_surface = null;
+
+	    this.bind();
+	    this.setParameter!"i"(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	    this.setParameter!"i"(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	    glTexImage2D(m_type, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA,
+		    GL_UNSIGNED_BYTE, null);
+	    this.unbind();
+	    this.clear(clearColor);
+	}
+
+	~this()
+	{
+	    deleteTexture(m_name);
+	}
+
+	void clear(uint clearColor)
+	{
+	    glClearTexImage(m_name, 0, GL_RGBA, GL_UNSIGNED_BYTE, &clearColor);
+	}
+
+	private template GLType(string name)
+	{
+	    static if(name == "f")
+	    {
+		mixin("alias GLType = GLfloat;");
+	    }
+	    else static if(name == "i")
+	    {
+	    	mixin("alias GLType = GLint;");
+	    }
+	    else
+	    {
+	    }
+	}
+	void setParameter(string typename)(GLenum parameterName, GLType!typename value)
+	{
+	    this.bind();
+
+	    mixin("alias glTexParameter = glTexParameter" ~ typename ~ ";");
+	    glTexParameter(m_type, parameterName, value);
+	}
+
+	bool isBound() 
+	{
+	    return m_isBound;
+	}
+
+	uint width() { return m_width; }
+	uint height() { return m_height; }
+
 	void bind()
 	{
 	    glBindTexture(m_type, m_name);
+	    m_isBound = true;
 	}
 	void unbind()
 	{
 	    glBindTexture(m_type, 0);
+	    m_isBound = false;
 	}
 
 	GLuint name()
@@ -655,11 +732,23 @@ class Texture
 	    return m_name;
 	}
 
+	void updateRegion(uint offsetx, uint offsety, uint width, uint height, uint[] data)
+	{
+	    this.bind();
+	    glTexSubImage2D(m_type, 0, offsetx, offsety, width, height, GL_RGBA, GL_UNSIGNED_BYTE,
+		    data.ptr);
+	}
+
 	static GLuint genTexture()
 	{
 	    GLuint name;
 	    glGenTextures(1, &name);
 	    return name;
+	}
+
+	static void deleteTexture(GLuint texture)
+	{
+	    glDeleteTextures(1, &texture);
 	}
 }
 
