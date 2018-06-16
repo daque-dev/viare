@@ -393,7 +393,7 @@ class Buffer
 struct Vertex
 {
     /// Position of the vertex
-    Vector position;
+    float[3] position;
     float[2] uv;
 
     /++
@@ -703,6 +703,15 @@ class Texture
 		data = data in row major order of the pixels to be set
 	+/
 	void updateRegion(uint offsetx, uint offsety, uint width, uint height, uint[] data)
+	in
+	{
+	    assert(data.length >= width * height);
+	}
+	out
+	{
+	    assert(true);
+	}
+	do
 	{
 	    this.bind();
 	    glTexSubImage2D(m_type, 0, offsetx, offsety, width, height, GL_RGBA, GL_UNSIGNED_BYTE,
