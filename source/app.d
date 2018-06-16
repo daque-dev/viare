@@ -13,7 +13,6 @@ import derelict.sdl2.image;
 import viare.abst.world;
 import viare.math.geometry;
 import viare.graphics;
-import viare.sdlize;
 import viare.models;
 
 void main()
@@ -35,8 +34,11 @@ void main()
     uint[] whiteBlock;
     whiteBlock.length = 100 * 100;
     whiteBlock[0 .. $] = 0xffffffff;
+    whiteBlock[0 .. 100] = 0xff0000ff;
+    int x = 10;
+    int y = 20;
+    whiteBlock[ y * 100 + x ] = 0xff0000ff;
     testTexture.updateRegion(0, 0, 100, 100, whiteBlock);
-    //Texture testTexture = new Texture(200, 200);
     // 
 
     // Drawing operations
@@ -63,6 +65,7 @@ void main()
 	    }
 	}
     }
+    //
 
     return;
 }
