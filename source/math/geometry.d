@@ -10,20 +10,26 @@ import std.stdio;
 import std.conv;
 import std.range;
 
-alias Vector = float[3];
+deprecated alias Vector = float[3];
 
-pure float dot(in Vector v, in Vector w)
+pure float dot(uint n)(in float[n] v, in float[n] w)
 {
-    Vector products = v[] * w[];
+    float[n] products = v[] * w[];
     return products.array.sum;
 }
 
-pure float magnitude(Vector v)
+pure float magnitude(uint n)(float[n] v)
 {
     return sqrt(dot(v, v));
 }
 
-pure Vector normalize(Vector v)
+pure float distance(uint n)(float[n] v, float[n] w)
+{
+    float[n] difference = v[] - w[];
+    return magnitude(difference);
+}
+
+pure float[n] normalize(uint n)(float[n] v)
 in
 {
     assert(v.magnitude > 0.0f, "cannot normalize a zero vector");
@@ -34,7 +40,7 @@ out(result)
 }
 do
 {
-    Vector normalized =  v[] / magnitude (v);
+    float[n] normalized =  v[] / magnitude (v);
     return normalized;
 }
 
