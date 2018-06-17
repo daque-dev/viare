@@ -10,24 +10,24 @@ import std.stdio;
 import std.conv;
 import std.range;
 
-pure float dot(uint n)(in float[n] v, in float[n] w)
+pure R dot(R, uint n)(in R[n] v, in R[n] w)
 {
-    float[n] products = v[] * w[];
+    R[n] products = v[] * w[];
     return products.array.sum;
 }
 
-pure float magnitude(uint n)(float[n] v)
+pure R magnitude(R, uint n)(R[n] v)
 {
     return sqrt(dot(v, v));
 }
 
-pure float distance(uint n)(float[n] v, float[n] w)
+pure R distance(R, uint n)(R[n] v, R[n] w)
 {
-    float[n] difference = v[] - w[];
+    R[n] difference = v[] - w[];
     return magnitude(difference);
 }
 
-pure float[n] normalize(uint n)(float[n] v)
+pure R[n] normalize(R, uint n)(R[n] v)
 in
 {
     assert(v.magnitude > 0.0f, "cannot normalize a zero vector");
@@ -38,7 +38,7 @@ out(result)
 }
 do
 {
-    float[n] normalized =  v[] / magnitude (v);
+    R[n] normalized =  v[] / magnitude (v);
     return normalized;
 }
 
