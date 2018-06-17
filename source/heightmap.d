@@ -43,15 +43,15 @@ public:
 	static this()
 	{
 		defaultParams.positionGenerator = { 
-			double x = uniform!"[)"(0.0, 400.0);
-			double y = uniform!"[)"(0.0, 400.0);
+			double x = uniform!"[)"(0.0, 1.0);
+			double y = uniform!"[)"(0.0, 1.0);
 			double[2] position = [x, y];
 			return position;
 		};
 		defaultParams.weightGenerator = { return uniform!"[]"(-100.0, 100.0); };
 		defaultParams.baseGenerator = { return uniform!"[]"(1.1, 1.7); };
 		defaultParams.exponentGenerator = { return uniform!"[]"(3.0, 7.0); };
-		defaultParams.zoomGenerator = { return uniform!"[]"(50.0, 70.0); };
+		defaultParams.zoomGenerator = { return uniform!"[]"(0.125, 0.175); };
 	}
 
 	this(Params params)
