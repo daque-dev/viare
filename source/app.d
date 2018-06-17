@@ -107,7 +107,8 @@ void main()
 	    writeln(percent * 10, "%");
 	}
 
-	heights[x][y] = quevFunction(2.0 * x, 2.0 * y);
+	heights[x][y] = quevFunction(cast(double) x / testTexture.width,
+			cast(double) y / testTexture.height);
     }
     writeln("finished calculating heights");
 
