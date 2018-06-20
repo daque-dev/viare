@@ -1,14 +1,10 @@
-module viare.heightmap;
+module viare.heightmap.quev;
 
-import std.math;
 import std.random;
+import std.math;
 
-import viare.math;
-
-interface HeightFunction
-{
-	double opCall(double x, double y);
-}
+import viare.math.geometry;
+import viare.heightmap.heightfunction;
 
 struct QuevCenter
 {
@@ -48,9 +44,9 @@ public:
 			double[2] position = [x, y];
 			return position;
 		};
-		defaultParams.weightGenerator = { return uniform!"[]"(-100.0, 100.0); };
-		defaultParams.baseGenerator = { return uniform!"[]"(1.1, 1.7); };
-		defaultParams.exponentGenerator = { return uniform!"[]"(3.0, 7.0); };
+		defaultParams.weightGenerator = { return uniform!"[]"(-1.0, 1.0); };
+		defaultParams.baseGenerator = { return uniform!"[]"(20.1, 40.2); };
+		defaultParams.exponentGenerator = { return uniform!"[]"(1.2, 1.5); };
 		defaultParams.zoomGenerator = { return uniform!"[]"(0.125, 0.175); };
 	}
 
@@ -83,20 +79,35 @@ class QuevHeightFunction : HeightFunction
 {
 	private:
 		QuevCenter[] m_centers;
+		double[] m_threshholds;
+
+		static double epsilon = 0.01;
 	public:
 		this(QuevCenter[] centers)
 		{
 			m_centers.length = centers.length;
 			m_centers[] = centers[];
+
+			m_threshholds.length = m_centers.length;
+
+			for(uint i = 0u; i < m_centers.length; i++)
+			{
+			    m_threshholds[i] = m_centers[i].zoom * 
+				pow(-log(epsilon/abs(m_centers[i].weight))/log(m_centers[i].base),
+					1.0/m_centers[i].exponent);
+			}
 		}
 
 		double opCall(double x, double y)
 		{
 			double[2] point = [x, y];
 			double total = 0.0;
-			foreach(QuevCenter center; m_centers)
+			for(uint i = 0; i < m_centers.length; i++)
 			{
+				QuevCenter center = m_centers[i];
 				double distance = distance(point, center.position);
+				if(distance > m_threshholds[i])
+				    continue;
 
 				distance /= center.zoom;
 

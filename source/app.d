@@ -18,46 +18,8 @@ import viare.abst.world;
 import viare.math.geometry;
 import viare.graphics;
 import viare.models;
-import viare.heightmap;
-
-struct Color
-{
-public:
-    uint r, g, b, a;
-
-    this(uint r, uint g, uint b, uint a)
-    {
-	this.r = r;
-	this.g = g;
-	this.b = b;
-	this.a = a;
-    }
-
-    this(uint combined)
-    {
-	r = combined % 0x100;
-	combined >>= 8;
-	g = combined % 0x100;
-	combined >>= 8; b = combined % 0x100;
-	combined >>= 8;
-	a = combined % 0x100;
-    }
-
-    uint toInt()
-    {
-	uint color = 0u;
-	color += a;
-	color <<= 8;
-	color += b;
-	color <<= 8;
-	color += g;
-	color <<= 8;
-	color += r;
-	
-	return color;
-    }
-
-}
+import viare.heightmap.quev;
+import viare.heightmap.heightfunction;
 
 void main()
 {
@@ -74,9 +36,8 @@ void main()
 
     // Model setup
     GpuArray!Vertex square = new GpuArray!Vertex(SQUARE_VERTICES.dup);
-    Texture testTexture = new Texture(200, 200);
-
-    // Height Map stuff
+    Texture testTexture = new Texture(400, 400);
+    // Height Map stuff0
     uint[] pixels;
     float[][] heights;
     float highest;
@@ -85,9 +46,9 @@ void main()
 
     // centers generation
     int noCenters = uniform!"[]"(300, 400);
-    QuevCentersGenerator centersGenerator = new StdQuevCentersGenerator();
-    QuevCenter[] centers = centersGenerator(noCenters);
-    QuevHeightFunction quevFunction = new QuevHeightFunction(centers);
+    QuevCenter[] centers = new StdQuevCentersGenerator()(noCenters);
+    HeightFunction heightFunction 
+	    = new QuevHeightFunction(centers);
     // end centers generation
 
     // make heights a width x height matrix
@@ -95,6 +56,8 @@ void main()
     for(int i = 0; i < testTexture.width; i++) 
 	    heights[i].length = testTexture.height;
 
+    // calculate heights per pixel
+    writeln("calculating heights");
     percent = 0;
     for(uint x = 0; x < testTexture.width; x++)
     for(uint y = 0; y < testTexture.height; y++)
@@ -107,7 +70,7 @@ void main()
 	    writeln(percent * 10, "%");
 	}
 
-	heights[x][y] = quevFunction(cast(double) x / testTexture.width,
+	heights[x][y] = heightFunction(cast(double) x / testTexture.width,
 			cast(double) y / testTexture.height);
     }
     writeln("finished calculating heights");
@@ -132,18 +95,19 @@ void main()
 	if(normalizedHeight > 1.0f) normalizedHeight = 1.0f;
 	else if(normalizedHeight < 0.0f) normalizedHeight = 0.0f;
 
-	uint divisions = 30;
+	uint divisions = 50;
 	uint division = cast(uint) (round(divisions * normalizedHeight));
+	double waterLevel = 0.5;
 
 	uint componentColor = cast(uint) (cast(float) division / divisions * 0xff);
 	float[3] tint = [1.0f, 1.0f, 1.0f];
 
-	float[3] blueTint = [0.0f, 0.6f, 1.0f];
+	float[3] blueTint = [0.0f, 0.3, 0.5f];
 	float[3] greenTint = [0.0f, 0.7f, 0.5f];
 	float[3] whiteTint = [1.0f, 1.0f, 1.0f];
 	float[3] brownTint = [0.7f, 0.5f, 0.3f];
 
-	if(division < 10)
+	if(division < divisions * waterLevel)
 	    tint[] = blueTint[];
 	else
 	    tint[] = greenTint[];
@@ -157,9 +121,12 @@ void main()
 
     foreach(QuevCenter center; centers)
     {
-	uint x = cast(uint) center.position[0] / 2;
-	uint y = cast(uint) center.position[1] / 2;
-	pixels[x + y * testTexture.width] = Color(0xff, 0x00, 0x00, 0xff).toInt();
+	double x = center.position[0] * testTexture.width;
+	double y = center.position[1] * testTexture.height;
+
+	uint ux = cast(uint) x;
+	uint uy = cast(uint) y;
+	pixels[ux + uy * testTexture.width] = Color(0xff, 0, 0, 0xff).toInt;
     }
     testTexture.updateRegion(0, 0, testTexture.width, testTexture.height, pixels);
     // 
@@ -181,9 +148,7 @@ void main()
 	    switch(event.type)
 	    {
 		case SDL_QUIT: 
-		    window.close();
-		    break;
-		default:
+		    window.close(); break; default:
 		    break;
 	    }
 	}
