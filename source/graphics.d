@@ -39,6 +39,45 @@ static ~this()
 {
 }
 
+struct Color
+{
+	public:
+		uint r, g, b, a;
+
+		this(uint r, uint g, uint b, uint a)
+		{
+			this.r = r;
+			this.g = g;
+			this.b = b;
+			this.a = a;
+		}
+
+		this(uint combined)
+		{
+			r = combined % 0x100;
+			combined >>= 8;
+			g = combined % 0x100;
+			combined >>= 8;
+			b = combined % 0x100;
+			combined >>= 8;
+			a = combined % 0x100;
+		}
+
+		uint toInt()
+		{
+			uint color = 0u;
+			color += a;
+			color <<= 8;
+			color += b;
+			color <<= 8;
+			color += g;
+			color <<= 8;
+			color += r;
+
+			return color;
+		}
+}
+
 /// Canvas for drawing
 class Window
 {
