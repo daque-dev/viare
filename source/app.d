@@ -15,10 +15,15 @@ import derelict.sdl2.sdl;
 import derelict.sdl2.image;
 
 import viare.abst.world;
+
 import viare.math.geometry;
+
 import viare.graphics;
+
 import viare.models;
+
 import viare.heightmap.quev;
+import viare.heightmap.heightmap;
 import viare.heightmap.heightfunction;
 
 void main()
@@ -33,68 +38,34 @@ void main()
     program.link();
     program.setUniform1i("sampler", 0);
     //
-
     // Model setup
     GpuArray!Vertex square = new GpuArray!Vertex(SQUARE_VERTICES.dup);
     Texture testTexture = new Texture(400, 400);
-    // Height Map stuff0
-    uint[] pixels;
-    float[][] heights;
-    float highest;
-    float lowest;
-    uint percent = 0;
 
-    // centers generation
-    int noCenters = uniform!"[]"(300, 400);
-    QuevCenter[] centers = new StdQuevCentersGenerator()(noCenters);
-    HeightFunction heightFunction 
-	    = new QuevHeightFunction(centers);
-    // end centers generation
+    int numberOfCenters = uniform!"[]"(300, 400);
+    QuevCenter[] centers = new StdQuevCentersGenerator()(numberOfCenters);
+    HeightFunction heightFunction = new QuevHeightFunction(centers);
 
-    // make heights a width x height matrix
-    heights.length = testTexture.width;
-    for(int i = 0; i < testTexture.width; i++) 
-	    heights[i].length = testTexture.height;
+    HeightMap heightMap = new HeightMap(testTexture.width, testTexture.height);
+    heightMap.fillWithHeightFunction(heightFunction);
+    heightMap.normalize();
 
-    // calculate heights per pixel
-    writeln("calculating heights");
-    percent = 0;
-    for(uint x = 0; x < testTexture.width; x++)
-    for(uint y = 0; y < testTexture.height; y++)
-    {
-	uint newPercent = (x * testTexture.height + y) * 10 / (testTexture.width *
-		testTexture.height);
-	if(newPercent != percent)
-	{
-	    percent = newPercent;
-	    writeln(percent * 10, "%");
-	}
+    float[3] blueTint = [0.0f, 0.3, 0.5f];
+    float[3] greenTint = [0.0f, 0.7f, 0.5f];
+    float[3] whiteTint = [1.0f, 1.0f, 1.0f];
+    float[3] brownTint = [0.7f, 0.5f, 0.3f];
 
-	heights[x][y] = heightFunction(cast(double) x / testTexture.width,
-			cast(double) y / testTexture.height);
-    }
-    writeln("finished calculating heights");
+    Pixel2D image = new Pixel2D(testTexture.width, testTexture.height);
+    HeightMapRenderer heightMapRenderer = new WaterTerrainHeightMapRenderer();
+    heightMapRenderer.setNumberOfDivisions(50);
+    heightMapRenderer.setWaterLevel(0.5);
+    heightMapRenderer.setWaterTint(blueTint);
+    heightMapRenderer.setTerrainTint(greenTint);
+    heightMapRenderer.renderOn(image);
 
-    highest = heights[0][0];
-    lowest = heights[0][0];
-
-    for(uint x = 0; x < testTexture.width; x++)
-    for(uint y = 0; y < testTexture.height; y++)
-    {
-	if(heights[x][y] > highest)
-	    highest = heights[x][y];
-	if(heights[x][y] < lowest)
-	    lowest = heights[x][y];
-    }
-
-    pixels.length = testTexture.width * testTexture.height;
     for(int x = 0; x < testTexture.width; x++)
     for(int y = 0; y < testTexture.height; y++)
     {
-	float normalizedHeight = (heights[x][y] - lowest) / (highest - lowest);
-	if(normalizedHeight > 1.0f) normalizedHeight = 1.0f;
-	else if(normalizedHeight < 0.0f) normalizedHeight = 0.0f;
-
 	uint divisions = 50;
 	uint division = cast(uint) (round(divisions * normalizedHeight));
 	double waterLevel = 0.5;
@@ -113,7 +84,10 @@ void main()
 	    tint[] = greenTint[];
 
 	float[3] colors = tint[] * componentColor;
-	Color colorStruct = Color(cast(uint) colors[0], cast(uint) colors[1], cast(uint) colors[2], 0xff);
+	Color colorStruct 
+	    = Color(cast(uint) colors[0], 
+		    cast(uint) colors[1], 
+		    cast(uint) colors[2], 0xff);
 	uint color = colorStruct.toInt();
 
 	pixels[x + y * testTexture.width] = color;
@@ -126,7 +100,7 @@ void main()
 
 	uint ux = cast(uint) x;
 	uint uy = cast(uint) y;
-	pixels[ux + uy * testTexture.width] = Color(0xff, 0, 0, 0xff).toInt;
+	pixels[ux + uy * testTexture.width] = Color(0xff, 0, 0, 0xff).toInt();
     }
     testTexture.updateRegion(0, 0, testTexture.width, testTexture.height, pixels);
     // 
