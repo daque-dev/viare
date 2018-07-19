@@ -18,6 +18,19 @@ class HeightMap
 			m_height.length = width;
 			for(uint i = 0u; i < width; i++)
 				m_height[i].length = height;
+
+			for(uint i = 0u; i < width; i++)
+				for(uint j = 0u; j < height; j++)
+					this[i, j] = 0.0f;
+		}
+
+		uint getWidth()
+		{
+			return m_xlength;
+		}
+		uint getHeight()
+		{
+			return m_ylength;
 		}
 
 		ref float opIndex(size_t i, size_t j)
@@ -27,17 +40,17 @@ class HeightMap
 
 		void fillByHeightFunction(HeightFunction heightFunction)
 		{
-			for(uint i = 0; i < m_width; i++)
-				for(uint j = 0; j < m_height; j++)
-					this[i, j] = heightFunction(cast(float) i / m_width, cast(float) j / m_height);
+			for(uint i = 0; i < m_xlength; i++)
+				for(uint j = 0; j < m_ylength; j++)
+					this[i, j] = heightFunction(cast(float) i / m_xlength, cast(float) j / m_ylength);
 		}
 
 		void normalize()
 		{
 			float lowest = this[0, 0], highest = this[0, 0];
 
-			for(uint i = 0; i < m_width; i++)
-				for(uint j = 0; j < m_height; j++)
+			for(uint i = 0; i < m_xlength; i++)
+				for(uint j = 0; j < m_ylength; j++)
 				{
 					if(this[i, j] < lowest)
 						lowest = this[i, j];
@@ -47,8 +60,8 @@ class HeightMap
 
 			float maxRelativeHeight = highest - lowest;
 
-			for(uint i = 0; i < m_width; i++)
-				for(uint j = 0; j < m_height; j++)
+			for(uint i = 0; i < m_xlength; i++)
+				for(uint j = 0; j < m_ylength; j++)
 					this[i, j] = (this[i, j] - lowest) / maxRelativeHeight;
 		}
 }

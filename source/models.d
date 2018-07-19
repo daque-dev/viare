@@ -1,7 +1,7 @@
 module viare.models;
 
 import viare.math.geometry;
-import viare.graphics;
+import viare.graphics.opengl;
 
 
 immutable(Vertex)[] SQUARE_VERTICES = [
