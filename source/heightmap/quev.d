@@ -22,57 +22,57 @@ interface QuevCentersGenerator
 
 class StdQuevCentersGenerator : QuevCentersGenerator
 {
-private:
-	Params m_params;
-public:
-	struct Params
-	{
-		double[2] delegate() positionGenerator;
-		double delegate() weightGenerator;
-		double delegate() baseGenerator;
-		double delegate() exponentGenerator;
-		double delegate() zoomGenerator;
-	}
-
-	static Params defaultParams;
-
-	static this()
-	{
-		defaultParams.positionGenerator = { 
-			double x = uniform!"[)"(0.0, 1.0);
-			double y = uniform!"[)"(0.0, 1.0);
-			double[2] position = [x, y];
-			return position;
-		};
-		defaultParams.weightGenerator = { return uniform!"[]"(-1.0, 1.0); };
-		defaultParams.baseGenerator = { return uniform!"[]"(20.1, 40.2); };
-		defaultParams.exponentGenerator = { return uniform!"[]"(1.2, 1.5); };
-		defaultParams.zoomGenerator = { return uniform!"[]"(0.125, 0.175); };
-	}
-
-	this(Params params)
-	{
-		m_params = params;
-	}
-	this()
-	{
-		this(defaultParams);
-	}
-	QuevCenter[] opCall(uint noCenters)
-	{
-		QuevCenter[] centers;
-		for(uint centerNo = 0; centerNo < noCenters; centerNo++)
+	private:
+		Params m_params;
+	public:
+		struct Params
 		{
-			QuevCenter newCenter;
-			newCenter.position[] = m_params.positionGenerator()[];
-			newCenter.weight = m_params.weightGenerator();
-			newCenter.base = m_params.baseGenerator();
-			newCenter.exponent = m_params.exponentGenerator();
-			newCenter.zoom = m_params.zoomGenerator();
-			centers ~= newCenter;
+			double[2] delegate() positionGenerator;
+			double delegate() weightGenerator;
+			double delegate() baseGenerator;
+			double delegate() exponentGenerator;
+			double delegate() zoomGenerator;
 		}
-		return centers;
-	}
+
+		static Params defaultParams;
+
+		static this()
+		{
+			defaultParams.positionGenerator = { 
+				double x = uniform!"[)"(0.0, 1.0);
+				double y = uniform!"[)"(0.0, 1.0);
+				double[2] position = [x, y];
+				return position;
+			};
+			defaultParams.weightGenerator = { return uniform!"[]"(-1.0, 1.0); };
+			defaultParams.baseGenerator = { return uniform!"[]"(20.1, 40.2); };
+			defaultParams.exponentGenerator = { return uniform!"[]"(1.2, 1.5); };
+			defaultParams.zoomGenerator = { return uniform!"[]"(0.125, 0.175); };
+		}
+
+		this(Params params)
+		{
+			m_params = params;
+		}
+		this()
+		{
+			this(defaultParams);
+		}
+		QuevCenter[] opCall(uint noCenters)
+		{
+			QuevCenter[] centers;
+			for(uint centerNo = 0; centerNo < noCenters; centerNo++)
+			{
+				QuevCenter newCenter;
+				newCenter.position[] = m_params.positionGenerator()[];
+				newCenter.weight = m_params.weightGenerator();
+				newCenter.base = m_params.baseGenerator();
+				newCenter.exponent = m_params.exponentGenerator();
+				newCenter.zoom = m_params.zoomGenerator();
+				centers ~= newCenter;
+			}
+			return centers;
+		}
 }
 
 class QuevHeightFunction : HeightFunction
@@ -92,9 +92,9 @@ class QuevHeightFunction : HeightFunction
 
 			for(uint i = 0u; i < m_centers.length; i++)
 			{
-			    m_threshholds[i] = m_centers[i].zoom * 
-				pow(-log(epsilon/abs(m_centers[i].weight))/log(m_centers[i].base),
-					1.0/m_centers[i].exponent);
+				m_threshholds[i] = m_centers[i].zoom * 
+					pow(-log(epsilon/abs(m_centers[i].weight))/log(m_centers[i].base),
+							1.0/m_centers[i].exponent);
 			}
 		}
 
@@ -107,13 +107,13 @@ class QuevHeightFunction : HeightFunction
 				QuevCenter center = m_centers[i];
 				double distance = distance(point, center.position);
 				if(distance > m_threshholds[i])
-				    continue;
+					continue;
 
 				distance /= center.zoom;
 
 				total += 
-				center.weight * 
-				pow(center.base, -pow(distance, center.exponent));
+					center.weight * 
+					pow(center.base, -pow(distance, center.exponent));
 			}
 			return total;
 		}

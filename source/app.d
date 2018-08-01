@@ -15,145 +15,94 @@ import derelict.sdl2.sdl;
 import derelict.sdl2.image;
 
 import viare.abst.world;
+
 import viare.math.geometry;
-import viare.graphics;
+import viare.math.types;
+
+import viare.graphics.opengl;
+import viare.graphics.color;
+import viare.graphics.image;
+
 import viare.models;
+
 import viare.heightmap.quev;
+import viare.heightmap.heightmap;
 import viare.heightmap.heightfunction;
+import viare.heightmap.renderer;
 
 void main()
 {
-    Window window = new Window("viare", 800, 800);
+	Window window = new Window("viare", 800, 800);
 
-    // GLSL program
-    Program program = new Program([
-		new Shader(Shader.Type.Vertex, "shaders/vertexdef.glsl"),
-		new Shader(Shader.Type.Fragment, "shaders/fragmentdef.glsl")
-	    ]);
-    program.link();
-    program.setUniform1i("sampler", 0);
-    //
+	// GLSL program
+	Program program = new Program([
+			new Shader(Shader.Type.Vertex, "shaders/vertexdef.glsl"),
+			new Shader(Shader.Type.Fragment, "shaders/fragmentdef.glsl")
+	]);
+	program.link();
 
-    // Model setup
-    GpuArray!Vertex square = new GpuArray!Vertex(SQUARE_VERTICES.dup);
-    Texture testTexture = new Texture(400, 400);
-    // Height Map stuff0
-    uint[] pixels;
-    float[][] heights;
-    float highest;
-    float lowest;
-    uint percent = 0;
+	// Model setup
+	GpuArray!Vertex square = new GpuArray!Vertex(SQUARE_VERTICES.dup);
+	Texture testTexture = new Texture(100, 100);
 
-    // centers generation
-    int noCenters = uniform!"[]"(300, 400);
-    QuevCenter[] centers = new StdQuevCentersGenerator()(noCenters);
-    HeightFunction heightFunction 
-	    = new QuevHeightFunction(centers);
-    // end centers generation
+	// Height Function 
+	int numberOfCenters = uniform!"[]"(300, 400);
+	QuevCenter[] centers = new StdQuevCentersGenerator()(numberOfCenters);
+	HeightFunction heightFunction = new QuevHeightFunction(centers);
 
-    // make heights a width x height matrix
-    heights.length = testTexture.width;
-    for(int i = 0; i < testTexture.width; i++) 
-	    heights[i].length = testTexture.height;
+	// HeightMap Fill
+	HeightMap heightMap = new HeightMap(testTexture.width, testTexture.height);
+	writeln("Calculating heights");
+	heightMap.fillByHeightFunction(heightFunction);
+	writeln("Finished calculating heights");
+	heightMap.normalize();
 
-    // calculate heights per pixel
-    writeln("calculating heights");
-    percent = 0;
-    for(uint x = 0; x < testTexture.width; x++)
-    for(uint y = 0; y < testTexture.height; y++)
-    {
-	uint newPercent = (x * testTexture.height + y) * 10 / (testTexture.width *
-		testTexture.height);
-	if(newPercent != percent)
-	{
-	    percent = newPercent;
-	    writeln(percent * 10, "%");
-	}
-
-	heights[x][y] = heightFunction(cast(double) x / testTexture.width,
-			cast(double) y / testTexture.height);
-    }
-    writeln("finished calculating heights");
-
-    highest = heights[0][0];
-    lowest = heights[0][0];
-
-    for(uint x = 0; x < testTexture.width; x++)
-    for(uint y = 0; y < testTexture.height; y++)
-    {
-	if(heights[x][y] > highest)
-	    highest = heights[x][y];
-	if(heights[x][y] < lowest)
-	    lowest = heights[x][y];
-    }
-
-    pixels.length = testTexture.width * testTexture.height;
-    for(int x = 0; x < testTexture.width; x++)
-    for(int y = 0; y < testTexture.height; y++)
-    {
-	float normalizedHeight = (heights[x][y] - lowest) / (highest - lowest);
-	if(normalizedHeight > 1.0f) normalizedHeight = 1.0f;
-	else if(normalizedHeight < 0.0f) normalizedHeight = 0.0f;
-
-	uint divisions = 50;
-	uint division = cast(uint) (round(divisions * normalizedHeight));
-	double waterLevel = 0.5;
-
-	uint componentColor = cast(uint) (cast(float) division / divisions * 0xff);
-	float[3] tint = [1.0f, 1.0f, 1.0f];
-
-	float[3] blueTint = [0.0f, 0.3, 0.5f];
+	// Tints
+	float[3] blueTint = [0.0f, 0.3f, 0.7];
 	float[3] greenTint = [0.0f, 0.7f, 0.5f];
 	float[3] whiteTint = [1.0f, 1.0f, 1.0f];
 	float[3] brownTint = [0.7f, 0.5f, 0.3f];
 
-	if(division < divisions * waterLevel)
-	    tint[] = blueTint[];
-	else
-	    tint[] = greenTint[];
+	// HeightMap Rendering Configuration
+	WaterTerrainHeightMapRenderer renderer = new WaterTerrainHeightMapRenderer();
+	renderer.setWaterLevel(0.5);
+	renderer.setWaterTint(blueTint);
+	renderer.setTerrainTint(greenTint);
 
-	float[3] colors = tint[] * componentColor;
-	Color colorStruct = Color(cast(uint) colors[0], cast(uint) colors[1], cast(uint) colors[2], 0xff);
-	uint color = colorStruct.toInt();
+	// HeightMap rendering
+	writeln("Rendering");
+	Image image = renderer.render(heightMap);
+	testTexture.updateRegion(0, 0, 
+			testTexture.width, testTexture.height, 
+			image.linearize!(MatrixOrder.RowMajor)());
+	writeln("Finished rendering");
 
-	pixels[x + y * testTexture.width] = color;
-    }
+	program.setUniform1i("sampler", 0);
 
-    foreach(QuevCenter center; centers)
-    {
-	double x = center.position[0] * testTexture.width;
-	double y = center.position[1] * testTexture.height;
-
-	uint ux = cast(uint) x;
-	uint uy = cast(uint) y;
-	pixels[ux + uy * testTexture.width] = Color(0xff, 0, 0, 0xff).toInt;
-    }
-    testTexture.updateRegion(0, 0, testTexture.width, testTexture.height, pixels);
-    // 
-
-    // Drawing operations
-    while(window.isOpen())
-    {
-	window.clear();
-	program.use();
-
-	setTextureUnit(0, testTexture);
-	window.render(square);
-
-	window.print();
-
-	SDL_Event event;
-	while(SDL_PollEvent(&event))
+	// Drawing operations
+	while(window.isOpen())
 	{
-	    switch(event.type)
-	    {
-		case SDL_QUIT: 
-		    window.close(); break; default:
-		    break;
-	    }
-	}
-    }
-    //
+		window.clear();
 
-    return;
+		program.use();
+		setTextureUnit(0, testTexture);
+		window.render(square);
+
+		window.print();
+
+		SDL_Event event;
+		while(SDL_PollEvent(&event))
+		{
+			switch(event.type)
+			{
+				case SDL_QUIT: 
+					window.close(); 
+					break; 
+				default:
+					break;
+			}
+		}
+	}
+
+	return;
 }
