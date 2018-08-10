@@ -13,28 +13,35 @@ interface HeightMapRenderer
 class WaterTerrainHeightMapRenderer: HeightMapRenderer
 {
 	public:
+	/++
+		Renders a HeightMap into an Image
+
+		Params:
+		heightMap = heightmap to be rendered
+
+		Returns:
+		The image on which the heightmap was rendered
+	+/
 		Image render(HeightMap heightMap)
 		{
-			uint width = heightMap.getWidth();
-			uint height = heightMap.getHeight();
-			Image image = new Image(width, height);
+			immutable heightMapWidth = heightMap.getWidth();
+			immutable heightMapHeight = heightMap.getHeight();
+			Image image = new Image(heightMapWidth, heightMapHeight);
 
-			for(uint x = 0; x < width; x++)
+			for(uint x; x < heightMapWidth; x++)
 			{
-				for(uint y = 0; y < height; y++)
+				for(uint y; y < heightMapHeight; y++)
 				{
-					float cellHeight = heightMap[x, y];
-					bool isWater = (cellHeight <= m_waterLevel);
-					float[3] tint;
-					if(isWater)
-						tint[] = m_waterTint[];
-					else
-						tint[] = m_terrainTint[];
+					immutable cellHeight = heightMap[x, y];
+					immutable bool isWater = (cellHeight <= m_waterLevel);
+					immutable float[3] tint = isWater? m_waterTint: m_terrainTint;
+					immutable float[3] colorFloat = tint[] * (cellHeight * 0xFF);
+
 					Color color;
-					float[3] colorFloat = tint[] * (cellHeight * 0xFF);
-					for(uint i = 0; i < 3; i++)
-						color.c[i] = cast(ubyte) colorFloat[i];
-					color.c[3] = 0xFF;
+					for(uint i; i < 3; i++)
+						color.component[i] = cast(ubyte) colorFloat[i];
+					color.component[3] = 0xFF;
+
 					image[x, y] = color.toInt();
 				}
 			}
