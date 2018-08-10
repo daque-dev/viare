@@ -1,6 +1,6 @@
 module viare.graphics.image;
 
-import viare.math.types;
+import daque.math.linear;
 
 /++
 	Represents an array of pixels

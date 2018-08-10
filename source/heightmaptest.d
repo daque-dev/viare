@@ -15,8 +15,8 @@ import derelict.opengl;
 import derelict.sdl2.sdl;
 import derelict.sdl2.image;
 
-import viare.math.geometry;
-import viare.math.types;
+import daque.math.linear;
+import daque.math.geometry;
 
 import viare.graphics.opengl;
 import viare.graphics.color;
@@ -28,6 +28,19 @@ import viare.heightmap.quev;
 import viare.heightmap.heightmap;
 import viare.heightmap.heightfunction;
 import viare.heightmap.renderer;
+
+void heightMapDebugging()
+{
+	immutable noCenters = uniform!"[]"(100, 200);
+	QuevCenter[] centers = new StdQuevCentersGenerator()(noCenters);
+	HeightFunction heightFunction = new QuevHeightFunction(centers);
+
+	double first = heightFunction(0, 0);
+	double second = heightFunction(0.4, 0.4);
+
+	writeln(first);
+	writeln(second);
+}
 
 void heightMapTest()
 {

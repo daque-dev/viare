@@ -15,8 +15,8 @@ import derelict.opengl;
 import derelict.sdl2.sdl;
 import derelict.sdl2.image;
 
-import viare.math.geometry;
-import viare.math.types;
+import daque.math.geometry;
+import daque.math.linear;
 
 import viare.graphics.opengl;
 import viare.graphics.color;

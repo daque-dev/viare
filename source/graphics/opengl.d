@@ -14,7 +14,7 @@ import derelict.opengl;
 import derelict.sdl2.sdl;
 import derelict.sdl2.image;
 
-import viare.math.geometry;
+import daque.math.geometry;
 
 /++
 Initializes required libraries for graphics rendering.

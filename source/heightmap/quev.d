@@ -3,7 +3,7 @@ module viare.heightmap.quev;
 import std.random;
 import std.math;
 
-import viare.math.geometry;
+import daque.math.geometry;
 import viare.heightmap.heightfunction;
 
 struct QuevCenter
@@ -105,7 +105,7 @@ class QuevHeightFunction : HeightFunction
 
 			foreach(uint i, QuevCenter center; m_centers)
 			{
-				immutable distanceToCenter = distance(point, center.position);
+				immutable distanceToCenter = distance!double(point, center.position);
 				if(distanceToCenter > m_threshholds[i])
 					continue;
 

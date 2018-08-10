@@ -1,6 +1,7 @@
 module viare.models;
 
-import viare.math.geometry;
+import daque.math.geometry;
+
 import viare.graphics.opengl;
 
 immutable(Vertex)[] SQUARE_VERTICES = [// 1st triangle
