@@ -3,7 +3,7 @@ module viare.heightmap.quev;
 import std.random;
 import std.math;
 
-import viare.math.geometry;
+import daque.math.geometry;
 import viare.heightmap.heightfunction;
 
 struct QuevCenter
@@ -61,7 +61,7 @@ class StdQuevCentersGenerator : QuevCentersGenerator
 		QuevCenter[] opCall(uint noCenters)
 		{
 			QuevCenter[] centers;
-			for(uint centerNo = 0; centerNo < noCenters; centerNo++)
+			for(uint centerNo; centerNo < noCenters; centerNo++)
 			{
 				QuevCenter newCenter;
 				newCenter.position[] = m_params.positionGenerator()[];
@@ -81,7 +81,7 @@ class QuevHeightFunction : HeightFunction
 		QuevCenter[] m_centers;
 		double[] m_threshholds;
 
-		static double epsilon = 0.01;
+		static immutable epsilon = 0.01;
 	public:
 		this(QuevCenter[] centers)
 		{
@@ -90,11 +90,11 @@ class QuevHeightFunction : HeightFunction
 
 			m_threshholds.length = m_centers.length;
 
-			for(uint i = 0u; i < m_centers.length; i++)
+			foreach(uint i, QuevCenter center; m_centers)
 			{
-				m_threshholds[i] = m_centers[i].zoom * 
-					pow(-log(epsilon/abs(m_centers[i].weight))/log(m_centers[i].base),
-							1.0/m_centers[i].exponent);
+				m_threshholds[i] = center.zoom * 
+					pow(-log(epsilon/abs(center.weight))/log(center.base),
+							1.0/center.exponent);
 			}
 		}
 
@@ -102,18 +102,15 @@ class QuevHeightFunction : HeightFunction
 		{
 			double[2] point = [x, y];
 			double total = 0.0;
-			for(uint i = 0; i < m_centers.length; i++)
+
+			foreach(uint i, QuevCenter center; m_centers)
 			{
-				QuevCenter center = m_centers[i];
-				double distance = distance(point, center.position);
-				if(distance > m_threshholds[i])
+				immutable distanceToCenter = distance!double(point, center.position);
+				if(distanceToCenter > m_threshholds[i])
 					continue;
 
-				distance /= center.zoom;
-
-				total += 
-					center.weight * 
-					pow(center.base, -pow(distance, center.exponent));
+				total += center.weight *
+					pow(center.base, -pow(distanceToCenter / center.zoom, center.exponent));
 			}
 			return total;
 		}

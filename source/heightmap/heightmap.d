@@ -16,11 +16,11 @@ class HeightMap
 			m_ylength = height;
 
 			m_height.length = width;
-			for(uint i = 0u; i < width; i++)
+			for(uint i; i < width; i++)
 				m_height[i].length = height;
 
-			for(uint i = 0u; i < width; i++)
-				for(uint j = 0u; j < height; j++)
+			for(uint i; i < width; i++)
+				for(uint j; j < height; j++)
 					this[i, j] = 0.0f;
 		}
 
@@ -40,8 +40,8 @@ class HeightMap
 
 		void fillByHeightFunction(HeightFunction heightFunction)
 		{
-			for(uint i = 0; i < m_xlength; i++)
-				for(uint j = 0; j < m_ylength; j++)
+			for(uint i; i < m_xlength; i++)
+				for(uint j; j < m_ylength; j++)
 					this[i, j] = heightFunction(cast(float) i / m_xlength, cast(float) j / m_ylength);
 		}
 
@@ -49,8 +49,8 @@ class HeightMap
 		{
 			float lowest = this[0, 0], highest = this[0, 0];
 
-			for(uint i = 0; i < m_xlength; i++)
-				for(uint j = 0; j < m_ylength; j++)
+			for(uint i; i < m_xlength; i++)
+				for(uint j; j < m_ylength; j++)
 				{
 					if(this[i, j] < lowest)
 						lowest = this[i, j];
@@ -58,10 +58,10 @@ class HeightMap
 						highest = this[i, j];
 				}
 
-			float maxRelativeHeight = highest - lowest;
+			immutable float maxRelativeHeight = highest - lowest;
 
-			for(uint i = 0; i < m_xlength; i++)
-				for(uint j = 0; j < m_ylength; j++)
+			for(uint i; i < m_xlength; i++)
+				for(uint j; j < m_ylength; j++)
 					this[i, j] = (this[i, j] - lowest) / maxRelativeHeight;
 		}
 }

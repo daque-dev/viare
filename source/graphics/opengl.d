@@ -14,7 +14,7 @@ import derelict.opengl;
 import derelict.sdl2.sdl;
 import derelict.sdl2.image;
 
-import viare.math.geometry;
+import daque.math.geometry;
 
 /++
 Initializes required libraries for graphics rendering.
@@ -27,7 +27,7 @@ static this()
 	DerelictSDL2Image.load();
 	DerelictGL3.load();
 
-	if(SDL_Init(SDL_INIT_EVERYTHING) < 0) // error initializing SDL2 
+	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) // error initializing SDL2 
 	{
 		exit(-1);
 	}
@@ -41,77 +41,77 @@ static ~this()
 /// Canvas for drawing
 class Window
 {
-	public:
+public:
 
-		/++
+	/++
 			Constructs a new window with the specified dimensions and name.
 
 			Params:
-			name = name of the window to be constructed
-			width = width of the window to be constructed
-			height = height of the window to be constructed
+				name = name of the window to be constructed
+				width = width of the window to be constructed
+				height = height of the window to be constructed
 			+/
-			this(string name, uint width, uint height)
-			{
-				SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3); 
-				SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-				SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE); 
+	this(string name, uint width, uint height)
+	{
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-				m_window = cast(immutable(SDL_Window*)) SDL_CreateWindow(name.toStringz(),
-						SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-						width, height,
-						SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
-				m_isOpen = m_window != null;
+		m_window = cast(immutable(SDL_Window*)) SDL_CreateWindow(name.toStringz(), SDL_WINDOWPOS_CENTERED,
+				SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+		m_isOpen = m_window != null;
 
-				m_glContext = SDL_GL_CreateContext(getWindow);
+		m_glContext = SDL_GL_CreateContext(getWindow);
 
-				DerelictGL3.reload();
-			}
-		/// Closes the window
-		~this()
-		{
-			this.close();
-		}
-		/// Closes the window if it is open, deallocating it's resources.
-		void close()
-		{
-			if(isOpen())
-				SDL_DestroyWindow(getWindow());
-			m_isOpen = false;
-		}
-		/// Tells wether the window is currently open
-		bool isOpen() { return m_isOpen; }
+		DerelictGL3.reload();
+	}
+	/// Closes the window
+	~this()
+	{
+		this.close();
+	}
+	/// Closes the window if it is open, deallocating it's resources.
+	void close()
+	{
+		if (isOpen())
+			SDL_DestroyWindow(getWindow());
+		m_isOpen = false;
+	}
+	/// Tells wether the window is currently open
+	bool isOpen()
+	{
+		return m_isOpen;
+	}
 
-		/// Clear window buffer contents
-		void clear()
-		{
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		}
-		/// Renders an Array of vertices already on GPU memory
-		void render(VertexType)(GpuArray!VertexType vertices)
-		{
-			vertices.bind();
-			glDrawArrays(GL_TRIANGLES, 0, cast(int) vertices.size());
-		}
-		/// Prints current buffer contents into screen
-		void print()
-		{
-			SDL_GL_SwapWindow(getWindow);
-		}
+	/// Clear window buffer contents
+	void clear()
+	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+	/// Renders an Array of vertices already on GPU memory
+	void render(VertexType)(GpuArray!VertexType vertices)
+	{
+		vertices.bind();
+		glDrawArrays(GL_TRIANGLES, 0, cast(int) vertices.size());
+	}
+	/// Prints current buffer contents into screen
+	void print()
+	{
+		SDL_GL_SwapWindow(getWindow);
+	}
 
-	private:
-		/// reference to SDL window representation
-		immutable(SDL_Window*) m_window;
-		bool m_isOpen = false;
-		/// get non immutable reference to the window
-		SDL_Window* getWindow() 
-		{
-			return cast(SDL_Window*)m_window;
-		}
-		/// SDL-GL context handle
-		SDL_GLContext m_glContext;
+private:
+	/// reference to SDL window representation
+	immutable(SDL_Window*) m_window;
+	bool m_isOpen;
+	/// get non immutable reference to the window
+	SDL_Window* getWindow()
+	{
+		return cast(SDL_Window*) m_window;
+	}
+	/// SDL-GL context handle
+	SDL_GLContext m_glContext;
 }
-
 
 /++
 Represents a 'shader' OpenGL object.
@@ -123,24 +123,24 @@ The "whole" Program is another OpenGL object constructed by assembling
 many Shader s.
 +/
 class Shader
-{ 
-	public:
-		/// Types of shaders there can be
-		enum Type
-		{
-			Vertex,
-			Fragment
-		};
-		/++
+{
+public:
+	/// Types of shaders there can be
+	enum Type
+	{
+		Vertex,
+		Fragment
+	}
+	/++
 			Get the type of the shader
 			Returns: type of the shader
 			+/
-			@property Type type()
-			{
-				return m_type;
-			}
+	@property Type type()
+	{
+		return m_type;
+	}
 
-		/++
+	/++
 			Constructs a new shader of the specified type, using as source code the file pointed to by
 			sourcePath
 
@@ -149,66 +149,67 @@ class Shader
 			sourcePath = String representing a path to a file containing the 
 			source code which will be used as source for the constructed shader
 			+/
-			this(Shader.Type type, string sourcePath)
-			{
-				m_type = type;
-				m_shaderGlName = cast(immutable(GLuint))compileShader(type, sourcePath);
-			}
+	this(Shader.Type type, string sourcePath)
+	{
+		m_type = type;
+		m_shaderGlName = cast(immutable(GLuint)) compileShader(type, sourcePath);
+	}
 
-		~this()
-		{
-			glDeleteShader(m_shaderGlName);
-		}
+	~this()
+	{
+		glDeleteShader(m_shaderGlName);
+	}
 
-
-	private:
-		/// OpenGL Name of the handled shader
-		immutable(GLuint) m_shaderGlName;
-		/// Type of the handled shader
-		immutable(Type) m_type;
-		/++
+private:
+	immutable(GLuint) m_shaderGlName;
+	immutable(Type) m_type;
+	/++
 			Compiles a shader of the specified type, using as source code the file pointed to by sourcePath 
 			and returns the name of the opengl object representing the compiled shader.
 
 			Params:
 			type = Type of shader to be compiled
 			sourcePath = Path to the shader's source code
+
 			Returns:
 			Opengl Name of the compiled shader
 			+/
-			static GLuint compileShader(Type type, string sourcePath)
-			{
-				// Create and compile
-				GLuint shaderName = glCreateShader(typeToGlenum(type));
-				const char* sourceCodeZ = toStringz(readText(sourcePath));
-				glShaderSource(shaderName, 1, &sourceCodeZ, null);
-				glCompileShader(shaderName);
+	static GLuint compileShader(immutable Type type, string sourcePath)
+	{
+		// Create and compile
+		GLuint shaderName = glCreateShader(typeToGlenum(type));
+		const char* sourceCodeZ = toStringz(readText(sourcePath));
+		glShaderSource(shaderName, 1, &sourceCodeZ, null);
+		glCompileShader(shaderName);
 
-				// Error checking
-				GLint compilationSuccess = 0;
-				glGetShaderiv(shaderName, GL_COMPILE_STATUS, &compilationSuccess);
-				// Error case
-				if(compilationSuccess == GL_FALSE)
-				{
-					GLint logSize = 0;
-					GLchar[] errorLog;
+		// Error checking
+		GLint compilationSuccess = 0;
+		glGetShaderiv(shaderName, GL_COMPILE_STATUS, &compilationSuccess);
+		// Error case
+		if (compilationSuccess == GL_FALSE)
+		{
+			GLint logSize = 0;
+			GLchar[] errorLog;
 
-					glGetShaderiv(shaderName, GL_INFO_LOG_LENGTH, &logSize);
-					errorLog.length = logSize;
-					glGetShaderInfoLog(shaderName, logSize, &logSize, &errorLog[0]);
-					char[] info = fromStringz(&errorLog[0]);
+			glGetShaderiv(shaderName, GL_INFO_LOG_LENGTH, &logSize);
+			errorLog.length = logSize;
+			glGetShaderInfoLog(shaderName, logSize, &logSize, &errorLog[0]);
+			string info = cast(string) fromStringz(&errorLog[0]);
 
-					glDeleteShader(shaderName);
-					shaderName = 0;
-				}
-				else // Success case
-				{
-				}
+			import std.stdio : writeln;
+			writeln("COMPILATION ERROR: ", info);
 
-				return shaderName;
-			}
+			glDeleteShader(shaderName);
+			shaderName = 0;
+		}
+		else // Success case
+		{
+		}
 
-		/++
+		return shaderName;
+	}
+
+	/++
 			Maps Shader.Type to equivalent OpenGL GLenum.
 
 			Params:
@@ -216,20 +217,16 @@ class Shader
 			Returns: 
 			GLenum equivalent of type
 			+/
-			static pure GLenum typeToGlenum(Shader.Type type)
-			{
-				switch(type)
-				{
-					case Shader.Type.Vertex:
-						return GL_VERTEX_SHADER;
-					case Shader.Type.Fragment:
-						return GL_FRAGMENT_SHADER;
-					default:
-						break;
-				}
-				// Unsupported shader type
-				assert(0);
-			}
+	static pure GLenum typeToGlenum(Shader.Type type)
+	{
+		final switch (type)
+		{
+		case Shader.Type.Vertex:
+			return GL_VERTEX_SHADER;
+		case Shader.Type.Fragment:
+			return GL_FRAGMENT_SHADER;
+		}
+	}
 }
 
 /++
@@ -239,80 +236,79 @@ A Program is  a program to be executed by the GPU to each of the Vertices of a m
 +/
 class Program
 {
-	public:
-		/++
+public:
+	/++
 			Creates a new empty program
 			+/
-			this()
-			{
-				m_programGlName = glCreateProgram();
-			}
-		/++ 
+	this()
+	{
+		m_programGlName = glCreateProgram();
+	}
+	/++ 
 			Creates a program with the specified shaders already attached
 			+/
-			this(Shader[] shaders)
-			{
-				this();
-				shaders.each!(s => this.attach(s));
-			}
+	this(Shader[] shaders)
+	{
+		this();
+		shaders.each!(s => this.attach(s));
+	}
 
-		~this()
-		{
-			glDeleteProgram(m_programGlName);
-		}
-		/++
+	~this()
+	{
+		glDeleteProgram(m_programGlName);
+	}
+	/++
 			Attaches the shader to this program
 
 			Params:
 			shader = Shader to be attached
 			+/
-			void attach(Shader shader)
-			{
-				glAttachShader(m_programGlName, shader.m_shaderGlName);
-			}
-		/++
+	void attach(Shader shader)
+	{
+		glAttachShader(m_programGlName, shader.m_shaderGlName);
+	}
+	/++
 			Links the currently attached shaders
 			+/
-			void link()
-			{
-				glLinkProgram(m_programGlName);
+	void link()
+	{
+		glLinkProgram(m_programGlName);
 
-				GLint isLinked = 0;
-				glGetProgramiv(m_programGlName, GL_LINK_STATUS, cast(int *)&isLinked);
-				if(isLinked == GL_FALSE)
-				{
-				}
-				else
-				{
-				}
-			}
+		GLint isLinked = 0;
+		glGetProgramiv(m_programGlName, GL_LINK_STATUS, cast(int*)&isLinked);
+		if (isLinked == GL_FALSE)
+		{
+			import std.stdio: writeln;
+			writeln("LINKING ERROR");
+		}
+	}
 
-		/++
+	/++
 			Binds the program to the current opengl context so that it is used to process new render
 			commands
 			+/
-			void use()
-			{
-				glUseProgram(m_programGlName);
-			}
+	void use()
+	{
+		glUseProgram(m_programGlName);
+	}
 
-		/++
+	/++
 			Sets a integer uniform variable inside the program
 
 			Params:
 			uniformName = name of the single-valued uniform integer to be changed
 			val = new value to be assigned
 			+/
-			void setUniform1i(string uniformName, int val)
-			{
-				GLint uniformLocation = glGetUniformLocation(m_programGlName, "sampler");
-				this.use();
-				glUniform1i(uniformLocation, val);
-			}
+	void setUniform1i(string uniformName, int val)
+	{
+		GLint uniformLocation = glGetUniformLocation(m_programGlName, uniformName.toStringz());
+		this.use();
+		glUniform1i(uniformLocation, val);
+	}
 
-	private:
-		// associated Opengl Object Program's name
-		immutable(GLuint) m_programGlName;
+private:
+	// associated Opengl Object Program's name
+	immutable(GLuint) m_programGlName;
 
 }
 
@@ -325,64 +321,65 @@ This class eases/abstracts the interaction with this kind of opengl objects.
 +/
 class Buffer
 {
-	public:
-		/++
+public:
+	/++
 			Constructs a new and empty buffer
 			+/
-			this()
-			{
-				m_name = Buffer.gen();
-			}
-		~this()
-		{
-			del(m_name);
-		}
+	this()
+	{
+		m_name = Buffer.gen();
+	}
 
-		/++
+	~this()
+	{
+		del(m_name);
+	}
+
+	/++
 			Generates a new opengl buffer and returns it's name
 			Returns: name of the newly created opengl buffer
 			+/
-			static GLuint gen()
-			{
-				GLuint buffer;
-				glGenBuffers(1, &buffer);
-				return buffer;
-			}
+	static GLuint gen()
+	{
+		GLuint buffer;
+		glGenBuffers(1, &buffer);
+		return buffer;
+	}
 
-		/++ 
+	/++ 
 			Deletes a opengl buffer given it's name
 			Params :
 			buffer = opengl name of the opengl buffer
 			+/
-			static void del(GLuint buffer)
-			{
-				glDeleteBuffers(1, &buffer);
-			}
+	static void del(GLuint buffer)
+	{
+		glDeleteBuffers(1, &buffer);
+	}
 
-		/++
+	/++
 			Sends the unformatted data of the specified size to the buffer
 
 			Params:
 			data = Pointer to the data to be sent
 			size = Size in bytes of the data to be sent
 			+/
-			void bufferData(void* data, size_t size)
-			{
-				bind();
-				glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
-			}
+	void bufferData(void* data, size_t size)
+	{
+		bind();
+		glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
+	}
 
-		/++
+	/++
 			Binds the buffer to the current opengl context
 			+/
-			void bind()
-			{
-				glBindBuffer(GL_ARRAY_BUFFER, m_name);
-			}
+	void bind()
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, m_name);
+	}
 
-	private:
-		// opengl name of the buffer managed by @this
-		immutable(GLuint) m_name;
+private:
+	// opengl name of the buffer managed by @this
+	immutable(GLuint) m_name;
 }
 
 /++
@@ -405,26 +402,16 @@ struct Vertex
 
 		See AttributeFormat for more info about the data needed by OpenGL.
 		+/
-		static AttributeFormat[] formats = 
-		[
-		{
-index: 0, 
-		 size: 3, 
-		 type: GL_FLOAT, 
-		 normalized: GL_FALSE, 
-		 stride: cast(GLsizei)Vertex.sizeof, 
-		 pointer: cast(void*)Vertex.position.offsetof
-		},
-		{
-index: 1, 
-		 size: 2, 
-		 type: GL_FLOAT, 
-		 normalized: GL_TRUE, 
-		 stride: cast(GLsizei)Vertex.sizeof, 
-		 pointer: cast(void*)Vertex.uv.offsetof
-		}
-		];
-};
+	static AttributeFormat[] formats = [{
+	index:
+		0, size : 3, type : GL_FLOAT, normalized : GL_FALSE, stride
+			: cast(GLsizei) Vertex.sizeof, pointer : cast(void*) Vertex.position.offsetof
+	}, {
+	index:
+		1, size : 2, type : GL_FLOAT, normalized : GL_TRUE, stride
+			: cast(GLsizei) Vertex.sizeof, pointer : cast(void*) Vertex.uv.offsetof
+	}];
+}
 
 /++
 Data needed to represent a particular attribute for a Vertex.
@@ -445,7 +432,7 @@ struct AttributeFormat
 	/// Offset to first appearance of this attribute in an array of Vertices, equivalently, the
 	/// offset of this member in the Vertex structure
 	const GLvoid* pointer;
-};
+}
 
 /++
 Given the Buffer and the VertexArray currently bound to the OpenGL context, this function provides
@@ -460,11 +447,8 @@ void setup(AttributeFormat format)
 {
 	glEnableVertexAttribArray(format.index);
 
-	glVertexAttribPointer(format.index,
-			format.size, format.type,
-			format.normalized,
-			format.stride,
-			format.pointer);
+	glVertexAttribPointer(format.index, format.size, format.type,
+			format.normalized, format.stride, format.pointer);
 }
 
 /++
@@ -473,55 +457,57 @@ A VAO relates Opengl Buffers and Vertex Formats.
 +/
 class VertexArray
 {
-	private:
-		// opengl name of the VAO managed by @this
-		immutable(GLuint) m_name;
-	public:
-		/++
+private:
+	// opengl name of the VAO managed by @this
+	immutable(GLuint) m_name;
+public:
+	/++
 			Generates and empty VAO and saves it's name
 			+/
-			this()
-			{
-				m_name = genVertexArray();
-			}
-		static GLuint genVertexArray()
-		{
-			GLuint name;
-			glGenVertexArrays(1, &name);
-			return name;
-		}
-		/++
+	this()
+	{
+		m_name = genVertexArray();
+	}
+
+	static GLuint genVertexArray()
+	{
+		GLuint name;
+		glGenVertexArrays(1, &name);
+		return name;
+	}
+	/++
 			Deallocates the VAO
 			+/
-			~this()
-			{
-				deleteVertexArray(m_name);
-			}
-		static void deleteVertexArray(GLuint vertexArrayName)
-		{
-			glDeleteVertexArrays(1, &vertexArrayName);
-		}
-		/++
+	~this()
+	{
+		deleteVertexArray(m_name);
+	}
+
+	static void deleteVertexArray(GLuint vertexArrayName)
+	{
+		glDeleteVertexArrays(1, &vertexArrayName);
+	}
+	/++
 			Associates this VertexArray with the buffer and the format given by the type
 			VertexType.
 
 			Inputs:
 			buffer = Buffer to associate with this VertexArray and this format
 			+/
-			void use(VertexType)(Buffer buffer)
-			{
-				bind();
-				buffer.bind();
-				VertexType.formats.each!setup;
-			}
+	void use(VertexType)(Buffer buffer)
+	{
+		bind();
+		buffer.bind();
+		VertexType.formats.each!setup;
+	}
 
-		/++
+	/++
 			Binds this VertexArray to the opengl context
 			+/
-			void bind()
-			{
-				glBindVertexArray(m_name);
-			}
+	void bind()
+	{
+		glBindVertexArray(m_name);
+	}
 }
 
 /++
@@ -531,40 +517,40 @@ DataType = Type of the data to be stored
 	+/
 class GpuArray(DataType)
 {
-	private:
-		Buffer m_buffer;
-		VertexArray m_vao;
-		DataType[] m_data;
+private:
+	Buffer m_buffer;
+	VertexArray m_vao;
+	DataType[] m_data;
 
-	public:
-		/++
+public:
+	/++
 			Creates and fills a new gpu array
 
 			Params:
 			data = data to be initialy filled with
 			+/
-			this(DataType[] data)
-			{
-				m_data.length = data.length;
-				m_data[] = data[];
+	this(DataType[] data)
+	{
+		m_data.length = data.length;
+		m_data[] = data[];
 
-				m_buffer = new Buffer();
-				m_vao = new VertexArray();
+		m_buffer = new Buffer();
+		m_vao = new VertexArray();
 
-				m_buffer.bufferData(data.ptr, DataType.sizeof * data.length);
-				m_vao.use!DataType(m_buffer);
-			}
+		m_buffer.bufferData(data.ptr, DataType.sizeof * data.length);
+		m_vao.use!DataType(m_buffer);
+	}
 
-		/// Binds the associated VertexArray to the opengl context
-		void bind()
-		{
-			m_vao.bind();
-		}
-		/// Returns the number of elements in the array
-		ulong size() const
-		{
-			return m_data.length;
-		}
+	/// Binds the associated VertexArray to the opengl context
+	void bind()
+	{
+		m_vao.bind();
+	}
+	/// Returns the number of elements in the array
+	ulong size() const
+	{
+		return m_data.length;
+	}
 }
 
 /++
@@ -572,45 +558,45 @@ Represents a 2D opengl texture
 +/
 class Texture
 {
-	private:
-		immutable(GLuint) m_name;
-		immutable(GLenum) m_type;
+private:
+	immutable(GLuint) m_name;
+	immutable(GLenum) m_type;
 
-		immutable(SDL_Surface*) m_surface;
-		immutable(uint) m_width, m_height;
+	immutable(SDL_Surface*) m_surface;
+	immutable(uint) m_width, m_height;
 
-	public:
-		/++
+public:
+	/++
 			Constructs a Texture from an image file got from imagePath
 
 			Params:
 			imagePath = path to the image to be used as a source to construct the texture
 			+/
-			this(string imagePath)
-			{
-				m_type = GL_TEXTURE_2D;
-				m_surface = cast(immutable(SDL_Surface*)) IMG_Load(imagePath.toStringz());
-				m_width = m_surface.w;
-				m_height = m_surface.h;
+	this(string imagePath)
+	{
+		m_type = GL_TEXTURE_2D;
+		m_surface = cast(immutable(SDL_Surface*)) IMG_Load(imagePath.toStringz());
+		m_width = m_surface.w;
+		m_height = m_surface.h;
 
-				if(!m_surface) // error reading surface
-				{
-					return;
-				}    
-				else if(m_surface.format.format != SDL_PIXELFORMAT_RGBA32) // unsupported pixel format
-				{
-					return;
-				}
+		if (!m_surface) // error reading surface
+		{
+			return;
+		}
+		else if (m_surface.format.format != SDL_PIXELFORMAT_RGBA32) // unsupported pixel format
+		{
+			return;
+		}
 
-				m_name = Texture.gen();
-				this.bind();
-				this.setParameter!"i"(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				this.setParameter!"i"(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_surface.w, m_surface.h, 0, GL_RGBA,
-						GL_UNSIGNED_BYTE, m_surface.pixels);
-			}
+		m_name = Texture.gen();
+		this.bind();
+		this.setParameter!"i"(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		this.setParameter!"i"(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_surface.w, m_surface.h, 0,
+				GL_RGBA, GL_UNSIGNED_BYTE, m_surface.pixels);
+	}
 
-		/++
+	/++
 			Constructs an empty Texture with the specified width and height, and fills it with color
 			clearColor
 
@@ -619,73 +605,78 @@ class Texture
 			height = height of the texture to be constructed
 			clearColor = color to be filled with
 			+/
-			this(uint width, uint height, uint clearColor = 0xffffffff)
-			{
-				m_width = width;
-				m_height = height;
+	this(uint width, uint height, uint clearColor = 0xffffffff)
+	{
+		m_width = width;
+		m_height = height;
 
-				m_name = Texture.gen();
-				m_type = GL_TEXTURE_2D;
-				m_surface = null;
+		m_name = Texture.gen();
+		m_type = GL_TEXTURE_2D;
+		m_surface = null;
 
-				this.bind();
-				this.setParameter!"i"(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				this.setParameter!"i"(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-				glTexImage2D(m_type, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA,
-						GL_UNSIGNED_BYTE, null);
-				this.clear(clearColor);
-			}
+		this.bind();
+		this.setParameter!"i"(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		this.setParameter!"i"(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexImage2D(m_type, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
+		this.clear(clearColor);
+	}
 
-		~this()
-		{
-			Texture.del(m_name);
-		}
+	~this()
+	{
+		Texture.del(m_name);
+	}
 
-		/++
+	/++
 			Fills the texture with color clearColor
 			+/
-			void clear(uint clearColor)
-			{
-				glClearTexImage(m_name, 0, GL_RGBA, GL_UNSIGNED_BYTE, &clearColor);
-			}
+	void clear(uint clearColor)
+	{
+		glClearTexImage(m_name, 0, GL_RGBA, GL_UNSIGNED_BYTE, &clearColor);
+	}
 
-		private template GLType(string name)
+	private template GLType(string name)
+	{
+		static if (name == "f")
 		{
-			static if(name == "f")
-			{
-				alias GLType = GLfloat;
-			}
-			else static if(name == "i")
-			{
-				alias GLType = GLint;
-			}
+			alias GLType = GLfloat;
 		}
-		/// Sets an internal opengl parameter for the texture
-		void setParameter(string typename)(GLenum parameterName, GLType!typename value)
+		else static if (name == "i")
 		{
-			this.bind();
-
-			mixin("alias glTexParameter = glTexParameter" ~ typename ~ ";");
-			glTexParameter(m_type, parameterName, value);
+			alias GLType = GLint;
 		}
+	}
+	/// Sets an internal opengl parameter for the texture
+	void setParameter(string typename)(GLenum parameterName, GLType!typename value)
+	{
+		this.bind();
 
-		/// Returns the width of the texture
-		uint width() { return m_width; }
-		/// Returns the height of the texture
-		uint height() { return m_height; }
+		mixin("alias glTexParameter = glTexParameter" ~ typename ~ ";");
+		glTexParameter(m_type, parameterName, value);
+	}
 
-		/// Binds the texture to the opengl context
-		void bind()
-		{
-			glBindTexture(m_type, m_name);
-		}
+	/// Returns the width of the texture
+	uint width()
+	{
+		return m_width;
+	}
+	/// Returns the height of the texture
+	uint height()
+	{
+		return m_height;
+	}
 
-		/// Returns the opengl index of the texture ( aka: it's name )
-		GLuint name()
-		{
-			return m_name;
-		}
-		/++
+	/// Binds the texture to the opengl context
+	void bind()
+	{
+		glBindTexture(m_type, m_name);
+	}
+
+	/// Returns the opengl index of the texture ( aka: it's name )
+	GLuint name()
+	{
+		return m_name;
+	}
+	/++
 			Sets the pixels of a specified rectangular region
 
 			Params:
@@ -700,40 +691,40 @@ class Texture
 
 			data = data in row major order of the pixels to be set
 			+/
-			void updateRegion(uint offsetx, uint offsety, uint width, uint height, uint[] data)
-			in
-			{
-				assert(data.length >= width * height);
-			}
-		out
-		{
-			assert(true);
-		}
-		do
-		{
-			this.bind();
-			glTexSubImage2D(m_type, 0, offsetx, offsety, width, height, GL_RGBA, GL_UNSIGNED_BYTE,
-					data.ptr);
-		}
+	void updateRegion(uint offsetx, uint offsety, uint width, uint height, uint[] data)
+	in
+	{
+		assert(data.length >= width * height);
+	}
+	out
+	{
+	}
+	do
+	{
+		this.bind();
+		glTexSubImage2D(m_type, 0, offsetx, offsety, width, height, GL_RGBA,
+				GL_UNSIGNED_BYTE, data.ptr);
+	}
 
-		/++
+	/++
 			Generates a new opengl texture and returns it's name
 
-			Returns: the name of the newly created texture+/
-			static GLuint gen()
-			{
-				GLuint name;
-				glGenTextures(1, &name);
-				return name;
-			}
+			Returns: the name of the newly created texture
+		+/
+	static GLuint gen()
+	{
+		GLuint name;
+		glGenTextures(1, &name);
+		return name;
+	}
 
-		/++
+	/++
 			Deletes an opengl texture using it's name
 			+/
-			static void del(GLuint texture)
-			{
-				glDeleteTextures(1, &texture);
-			}
+	static void del(GLuint texture)
+	{
+		glDeleteTextures(1, &texture);
+	}
 }
 
 /++
@@ -742,8 +733,8 @@ Assigns texture to textureUnit.
 Params:
 textureUnit = texture unit index to be set
 texture = texture to be assigned
-	+/ 
-void setTextureUnit(int textureUnit, Texture texture) 
+	+/
+void setTextureUnit(int textureUnit, Texture texture)
 {
 	glActiveTexture(GL_TEXTURE0 + textureUnit);
 	glBindTexture(texture.m_type, texture.m_name);
