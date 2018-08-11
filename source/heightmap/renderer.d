@@ -36,7 +36,10 @@ class WaterTerrainHeightMapRenderer: HeightMapRenderer
 					immutable cellHeight = heightMap[x, y];
 					immutable bool isWater = (cellHeight <= m_waterLevel);
 					immutable float[3] tint = isWater? m_waterTint: m_terrainTint;
-					immutable float[3] colorFloat = tint[] * (cellHeight * 0xFF);
+					assert(m_divisions != 0);
+					immutable heightPerDivision = 1.0f / cast(float)m_divisions;
+					immutable uint division = cellHeight == 1.0f? m_divisions - 1: cast(uint)(cellHeight / heightPerDivision);
+					immutable float[3] colorFloat = tint[] * (division * heightPerDivision * 0xFF);
 
 					import std.algorithm;
 					import std.array;
@@ -64,9 +67,14 @@ class WaterTerrainHeightMapRenderer: HeightMapRenderer
 		{
 			m_terrainTint[] = terrainTint[];
 		}
+		void setDivisions(uint divisions)
+		{
+			m_divisions = divisions;
+		}
 
 	private:
 		float[3] m_waterTint, m_terrainTint;
 		float m_waterLevel;
+		uint m_divisions = 0x100;
 }
 
