@@ -1,7 +1,8 @@
 module viare.heightmap.renderer;
 
-import viare.graphics.image;
-import viare.graphics.color;
+import daque.graphics.image;
+import daque.graphics.color;
+
 import viare.heightmap.heightmap;
 
 interface HeightMapRenderer
