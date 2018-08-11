@@ -10,6 +10,7 @@ interface HeightMapRenderer
 		Image render(HeightMap heightMap);
 }
 
+
 class WaterTerrainHeightMapRenderer: HeightMapRenderer
 {
 	public:
@@ -37,9 +38,11 @@ class WaterTerrainHeightMapRenderer: HeightMapRenderer
 					immutable float[3] tint = isWater? m_waterTint: m_terrainTint;
 					immutable float[3] colorFloat = tint[] * (cellHeight * 0xFF);
 
+					import std.algorithm;
+					import std.array;
+
 					Color color;
-					for(uint i; i < 3; i++)
-						color.component[i] = cast(ubyte) colorFloat[i];
+					color.component[0 .. 3] = map!(c=>cast(ubyte)c)(colorFloat[]).array;
 					color.component[3] = 0xFF;
 
 					image[x, y] = color.toInt();

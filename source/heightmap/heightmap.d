@@ -15,13 +15,11 @@ class HeightMap
 			m_xlength = width;
 			m_ylength = height;
 
-			m_height.length = width;
-			for(uint i; i < width; i++)
-				m_height[i].length = height;
+			import std.algorithm;
 
-			for(uint i; i < width; i++)
-				for(uint j; j < height; j++)
-					this[i, j] = 0.0f;
+			m_height.length = width;
+			m_height.each!((ref column)=>column.length = height);
+			m_height.each!((ref column)=>column.each!((ref element)=>element=0));
 		}
 
 		uint getWidth()
@@ -33,7 +31,7 @@ class HeightMap
 			return m_ylength;
 		}
 
-		ref float opIndex(size_t i, size_t j)
+		ref float opIndex(uint i, uint j)
 		{
 			return m_height[i][j];
 		}
@@ -58,7 +56,7 @@ class HeightMap
 						highest = this[i, j];
 				}
 
-			immutable float maxRelativeHeight = highest - lowest;
+			immutable maxRelativeHeight = highest - lowest;
 
 			for(uint i; i < m_xlength; i++)
 				for(uint j; j < m_ylength; j++)
