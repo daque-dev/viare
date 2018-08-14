@@ -19,6 +19,7 @@ import daque.math.linear;
 import daque.math.geometry;
 
 import daque.graphics.opengl;
+import daque.graphics.sdl;
 import daque.graphics.color;
 import daque.graphics.image;
 
@@ -42,7 +43,8 @@ void heightMapDebugging()
 	writeln(second);
 }
 
-void heightMapTest()
+/*
+deprecated void heightMapTest()
 {
 	Window window = new Window("viare", 800, 800);
 
@@ -52,10 +54,19 @@ void heightMapTest()
 	textureProgram.link();
 
 	// Model setup
-	GpuArray!Vertex square = new GpuArray!Vertex(SQUARE_VERTICES.dup);
+	Vertex[] squareData = SQUARE_VERTICES.dup;
+	Vertex[] frontSquareData;
+	frontSquareData.length = squareData.length;
+	frontSquareData[] = squareData[];
+	import std.algorithm;
+	frontSquareData.each!((ref v) => v.position[2] += 0.5);
+
+	auto square = new GpuArray!Vertex(SQUARE_VERTICES.dup);
+	auto frontSquare = new GpuArray!Vertex(frontSquareData);
 
 	// Texture creation
 	Texture testTexture = new Texture(100, 100);
+	Texture frontTexture = new Texture(100, 100);
 
 	// Height Function 
 	immutable numberOfCenters = uniform!"[]"(300, 400);
@@ -80,6 +91,7 @@ void heightMapTest()
 	renderer.setWaterLevel(0.5);
 	renderer.setWaterTint(blueTint);
 	renderer.setTerrainTint(brownTint);
+	renderer.setDivisions(10);
 
 	// HeightMap rendering
 	writeln("Rendering");
@@ -88,16 +100,23 @@ void heightMapTest()
 			image.linearize!(MatrixOrder.RowMajor)());
 	writeln("Finished rendering");
 
-	textureProgram.setUniform1i("sampler", 0);
 
+	setTextureUnit(0, testTexture);
+	setTextureUnit(1, frontTexture);
+
+	glEnable(GL_DEPTH_TEST);
 	// Drawing operations
 	while (window.isOpen())
 	{
 		window.clear();
 
 		textureProgram.use();
-		setTextureUnit(0, testTexture);
-		window.render(square);
+
+		textureProgram.setUniform1i("sampler", 0);
+		render(square);
+		
+		textureProgram.setUniform1i("sampler", 1);
+		render(frontSquare);
 
 		window.print();
 
@@ -117,3 +136,4 @@ void heightMapTest()
 
 	return;
 }
+*/
