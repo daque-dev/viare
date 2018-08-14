@@ -1,5 +1,5 @@
 // Core of the game
-module viare.perspectivetest;
+module viare.tests.perspective;
 
 import std.stdio;
 import std.file;
@@ -30,8 +30,6 @@ import viare.heightmap.quev;
 import viare.heightmap.heightmap;
 import viare.heightmap.heightfunction;
 import viare.heightmap.renderer;
-
-import viare.heightmaptest;
 
 struct Vertex
 {

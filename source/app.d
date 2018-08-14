@@ -4,8 +4,8 @@ import std.stdio;
 import std.file;
 import std.ascii;
 
-import viare.perspectivetest;
-import viare.heightmaptest;
+import viare.tests.perspective;
+import viare.tests.heightmap;
 
 import daque.math.geometry;
 

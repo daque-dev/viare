@@ -1,5 +1,5 @@
 // Core of the game
-module viare.heightmaptest;
+module viare.tests.heightmap;
 
 import std.stdio;
 import std.file;
