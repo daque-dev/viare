@@ -35,15 +35,23 @@ struct Vertex
 {
 	float[3] position;
 	float[4] color;
+	// dfmt off
 	static AttributeFormat[] formats = [{
-	index:
-		0, size : 3, type : GL_FLOAT, normalized : GL_FALSE, stride
-			: Vertex.sizeof, pointer : cast(void*) Vertex.position.offsetof
+		index: 0,
+		size : 3,
+		type : GL_FLOAT,
+		normalized : GL_FALSE, 
+		stride: Vertex.sizeof,
+		pointer : cast(void*) Vertex.position.offsetof
 	}, {
-	index:
-		1, size : 4, type : GL_FLOAT, normalized : GL_TRUE, stride : Vertex.sizeof,
-	pointer : cast(void*) Vertex.color.offsetof
+		index: 1,
+		size : 4, 
+		type : GL_FLOAT,
+		normalized : GL_TRUE,
+		stride : Vertex.sizeof,
+		pointer : cast(void*) Vertex.color.offsetof
 	}];
+	// dfmt on
 }
 
 void perspectiveTest()
@@ -75,14 +83,18 @@ void perspectiveTest()
 
 	writeln("goZf = ", gotZf);
 
-	Vertex[] vertices = [{position:
-	[0, 0, -1.5], color : [1, 0, 0, 1]}, {
-	position:
-		[1, 0, -1.5], color : [0, 1, 0, 1]
+	// dfmt off
+	Vertex[] vertices = [{
+		position: [0, 0, -1.5], 
+		color : [1, 0, 0, 1]
 	}, {
-	position:
-		[0, 1, -1.5], color : [0, 0, 1, 1]
+		position: [1, 0, -1.5],
+		color : [0, 1, 0, 1]
+	}, {
+		position: [0, 1, -1.5],
+		color : [0, 0, 1, 1]
 	}];
+	// dfmt on
 
 	auto gpuVertices = new GpuArray(vertices, cast(uint) vertices.length, Vertex.formats);
 
