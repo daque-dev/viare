@@ -68,7 +68,7 @@ void perspectiveTest()
 	int uZn = perspectiveProgram.getUniformLocation("z_near");
 	int uZf = perspectiveProgram.getUniformLocation("z_far");
 	int alpha = perspectiveProgram.getUniformLocation("alpha");
-	int xy_ratio = perspectiveProgram.getUniformLocation("xy_ratio");
+	int xyRatio = perspectiveProgram.getUniformLocation("xy_ratio");
 
 	writeln("uZn location = ", uZn);
 	writeln("zf location = ", uZf);
@@ -76,7 +76,7 @@ void perspectiveTest()
 	perspectiveProgram.setUniform!(1, "f")(uZn, [1.0f]);
 	perspectiveProgram.setUniform!(1, "f")(uZf, [10.0f]);
 	perspectiveProgram.setUniform!(1, "f")(alpha, [45.0f]);
-	perspectiveProgram.setUniform!(1, "f")(xy_ratio, [800.0f / 600.0f]);
+	perspectiveProgram.setUniform!(1, "f")(xyRatio, [800.0f / 600.0f]);
 
 	float gotZf = 0.0f;
 	perspectiveProgram.getUniform!"f"(uZf, &gotZf);
