@@ -51,6 +51,7 @@ struct Vertex
     }];
 }
 
+
 void perspectiveTest()
 {
     // window setup
