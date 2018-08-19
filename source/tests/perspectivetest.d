@@ -100,33 +100,29 @@ void perspectiveTest()
     float[] translationVector = [0.0f, 0.0f, -2.5f];
 
     // Rotation stuff
-    immutable dr = Quaternion!float.getRotation([1, 0, 0], 0.05);
+    immutable dr = Quaternion!float.getRotation([1, 3, 7], 0.01);
     auto rotationQuaternion = cast(Quaternion!float) dr;
+
     immutable delta = 0.1;
     auto scancode = SDL_SCANCODE_W;
-    pragma(msg, typeof(scancode));
+    float[][SDL_Scancode] movements =
+    [
+        SDL_SCANCODE_W: [0, 0, -delta],
+        SDL_SCANCODE_S: [0, 0, +delta],
+        SDL_SCANCODE_D: [+delta, 0, 0],
+        SDL_SCANCODE_A: [-delta, 0, 0],
+        SDL_SCANCODE_E: [0, +delta, 0],
+        SDL_SCANCODE_Q: [0, -delta, 0]
+    ];
     while (window.isOpen())
     {
         // general processing
         rotationQuaternion = rotationQuaternion * dr;
 
         ubyte* key = SDL_GetKeyboardState(null);
-        if(key[SDL_SCANCODE_W])
-        {
-            translationVector[2] -= delta;
-        }
-        if(key[SDL_SCANCODE_S])
-        {
-            translationVector[2] += delta;
-        }
-        if(key[SDL_SCANCODE_D])
-        {
-            translationVector[0] += delta;
-        }
-        if(key[SDL_SCANCODE_A])
-        {
-            translationVector[0] -= delta;
-        }
+        foreach(SDL_Scancode code, float[] movement; movements)
+            if(key[code])
+                translationVector[] += movement[];
 
         // pre-rendering operations
         perspective.setUniformMatrix(rotation, rotationQuaternion.rotationMatrix());
