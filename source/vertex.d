@@ -1,5 +1,9 @@
 module viare.vertex;
 
+import derelict.opengl;
+
+import daque.graphics.opengl;
+
 struct Vertex
 {
     float[3] position;
