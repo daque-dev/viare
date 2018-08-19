@@ -32,15 +32,15 @@ import viare.heightmap.renderer;
 
 void heightMapDebugging()
 {
-	immutable noCenters = uniform!"[]"(100, 200);
-	QuevCenter[] centers = new StdQuevCentersGenerator()(noCenters);
-	HeightFunction heightFunction = new QuevHeightFunction(centers);
+    immutable noCenters = uniform!"[]"(100, 200);
+    QuevCenter[] centers = new StdQuevCentersGenerator()(noCenters);
+    HeightFunction heightFunction = new QuevHeightFunction(centers);
 
-	double first = heightFunction(0, 0);
-	double second = heightFunction(0.4, 0.4);
+    double first = heightFunction(0, 0);
+    double second = heightFunction(0.4, 0.4);
 
-	writeln(first);
-	writeln(second);
+    writeln(first);
+    writeln(second);
 }
 
 /*

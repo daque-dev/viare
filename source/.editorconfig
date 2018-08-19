@@ -1,6 +1,0 @@
-# EditorConfig 
-
-root = true
-
-[*.d] 
-indent_style = tab

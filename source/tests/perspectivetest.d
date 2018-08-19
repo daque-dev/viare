@@ -4,7 +4,6 @@ module viare.tests.perspective;
 import std.stdio;
 import std.file;
 import std.ascii;
-import std.uni;
 import std.string;
 import std.math;
 import std.random;
@@ -33,95 +32,125 @@ import viare.heightmap.renderer;
 
 struct Vertex
 {
-	float[3] position;
-	float[4] color;
-	// dfmt off
-	static AttributeFormat[] formats = [{
-		index: 0,
-		size : 3,
-		type : GL_FLOAT,
-		normalized : GL_FALSE, 
-		stride: Vertex.sizeof,
-		pointer : cast(void*) Vertex.position.offsetof
-	}, {
-		index: 1,
-		size : 4, 
-		type : GL_FLOAT,
-		normalized : GL_TRUE,
-		stride : Vertex.sizeof,
-		pointer : cast(void*) Vertex.color.offsetof
-	}];
-	// dfmt on
+    float[3] position;
+    float[4] color;
+    static AttributeFormat[] formats = [{
+        index: 0,
+        size: 3,
+        type: GL_FLOAT,
+        normalized: GL_FALSE,
+        stride: Vertex.sizeof,
+        pointer: cast(void*) Vertex.position.offsetof
+    }, {
+        index: 1,
+        size : 4,
+        type : GL_FLOAT,
+        normalized : GL_TRUE,
+        stride : Vertex.sizeof,
+        pointer : cast(void*) Vertex.color.offsetof
+    }];
 }
 
 void perspectiveTest()
 {
-	Window window = new Window("viare perspective test", 800, 600);
+    // window setup
+    Window window = new Window("viare perspective test", 800, 600);
 
-	Program perspectiveProgram = new Program();
-	Shader vertexShader = new Shader(Shader.Type.Vertex, "shaders/perspective-vertex.glsl");
-	Shader fragmentShader = new Shader(Shader.Type.Fragment, "shaders/perspective-fragment.glsl");
-	perspectiveProgram.attach(vertexShader);
-	perspectiveProgram.attach(fragmentShader);
-	perspectiveProgram.link();
+    // perspective program setup
+    Program perspective = new Program();
+    Shader vertexShader = new Shader(Shader.Type.Vertex, "shaders/perspective-vertex.glsl");
+    Shader fragmentShader = new Shader(Shader.Type.Fragment, "shaders/perspective-fragment.glsl");
+    perspective.attach(vertexShader);
+    perspective.attach(fragmentShader);
+    perspective.link();
 
-	int uZn = perspectiveProgram.getUniformLocation("z_near");
-	int uZf = perspectiveProgram.getUniformLocation("z_far");
-	int alpha = perspectiveProgram.getUniformLocation("alpha");
-	int xyRatio = perspectiveProgram.getUniformLocation("xy_ratio");
+    immutable uZn = perspective.getUniformLocation("z_near");
+    immutable uZf = perspective.getUniformLocation("z_far");
+    immutable alpha = perspective.getUniformLocation("alpha");
+    immutable xyRatio = perspective.getUniformLocation("xy_ratio");
+    immutable rotation = perspective.getUniformLocation("rotation");
+    immutable translation = perspective.getUniformLocation("translation");
 
-	writeln("uZn location = ", uZn);
-	writeln("zf location = ", uZf);
+    perspective.setUniform!(1, "f")(uZn, [0.1]);
+    perspective.setUniform!(1, "f")(uZf, [100.0f]);
+    perspective.setUniform!(1, "f")(alpha, [45.0f]);
+    perspective.setUniform!(1, "f")(xyRatio, [800.0f / 600.0f]);
+    perspective.setUniform!(3, "f")(translation, [0.0f, 0.0f, -2.5f]);
 
-	perspectiveProgram.setUniform!(1, "f")(uZn, [1.0f]);
-	perspectiveProgram.setUniform!(1, "f")(uZf, [10.0f]);
-	perspectiveProgram.setUniform!(1, "f")(alpha, [45.0f]);
-	perspectiveProgram.setUniform!(1, "f")(xyRatio, [800.0f / 600.0f]);
+    // Vertex specification
+    Vertex[] vertices = [{
+        position: [0, 1, 0], 
+        color : [1, 0, 0, 1]
+    }, {
+        position: [1, -1, 0], 
+        color : [0, 1, 0, 1]
+    }, {
+        position: [-1, -1, 0], 
+        color : [0, 0, 1, 1]
+    }];
+    foreach(ref v; vertices)
+        v.position[] = normalize(v.position[]);
 
-	float gotZf = 0.0f;
-	perspectiveProgram.getUniform!"f"(uZf, &gotZf);
+    auto gpuVertices = new GpuArray(
+        vertices,
+        cast(uint) vertices.length,
+        Vertex.formats);
 
-	writeln("goZf = ", gotZf);
+    // Translation 
+    float[] translationVector = [0.0f, 0.0f, -2.5f];
 
-	// dfmt off
-	Vertex[] vertices = [{
-		position: [0, 0, -1.5], 
-		color : [1, 0, 0, 1]
-	}, {
-		position: [1, 0, -1.5],
-		color : [0, 1, 0, 1]
-	}, {
-		position: [0, 1, -1.5],
-		color : [0, 0, 1, 1]
-	}];
-	// dfmt on
+    // Rotation stuff
+    immutable dr = Quaternion!float.getRotation([1, 0, 0], 0.05);
+    auto rotationQuaternion = cast(Quaternion!float) dr;
+    immutable delta = 0.1;
+    auto scancode = SDL_SCANCODE_W;
+    pragma(msg, typeof(scancode));
+    while (window.isOpen())
+    {
+        // general processing
+        rotationQuaternion = rotationQuaternion * dr;
 
-	auto gpuVertices = new GpuArray(vertices, cast(uint) vertices.length, Vertex.formats);
+        ubyte* key = SDL_GetKeyboardState(null);
+        if(key[SDL_SCANCODE_W])
+        {
+            translationVector[2] -= delta;
+        }
+        if(key[SDL_SCANCODE_S])
+        {
+            translationVector[2] += delta;
+        }
+        if(key[SDL_SCANCODE_D])
+        {
+            translationVector[0] += delta;
+        }
+        if(key[SDL_SCANCODE_A])
+        {
+            translationVector[0] -= delta;
+        }
 
-	auto dr = Quaternion!float.getRotation([1, 1, 1], 0.01);
+        // pre-rendering operations
+        perspective.setUniformMatrix(rotation, rotationQuaternion.rotationMatrix());
+        perspective.setUniform!(3, "f")(translation, translationVector);
 
-	auto rotation = dr;
+        // rendering
+        window.clear();
+        perspective.use();
+        render(gpuVertices);
+        window.print();
 
-	while (window.isOpen())
-	{
-		window.clear();
+        // event processing
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
+        {
+            switch (event.type)
+            {
+            case SDL_QUIT:
+                window.close();
+                break;
 
-		perspectiveProgram.use();
-		render(gpuVertices);
-
-		window.print();
-		SDL_Event event;
-		while (SDL_PollEvent(&event))
-		{
-			switch (event.type)
-			{
-			case SDL_QUIT:
-				window.close();
-				break;
-
-			default:
-				break;
-			}
-		}
-	}
+            default:
+                break;
+            }
+        }
+    }
 }

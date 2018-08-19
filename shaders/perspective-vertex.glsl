@@ -7,6 +7,7 @@ uniform float z_near;
 uniform float z_far;
 uniform float alpha;
 uniform float xy_ratio;
+uniform vec3 translation;
 uniform mat3 rotation;
 
 out vec4 v_color;
@@ -19,7 +20,9 @@ void main()
 	0, 0, (z_far + z_near)/(z_far - z_near), -1,
 	0, 0, 2 * z_far * z_near/(z_far - z_near), 0);
 
-	gl_Position = perspective * vec4(in_position, 1);
+    vec3 rotated = rotation * in_position;
+    vec3 translated = rotated + translation;
+	gl_Position = perspective * vec4(translated, 1);
 
 	v_color = in_color;
 }
