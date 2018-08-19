@@ -16,6 +16,7 @@ import derelict.sdl2.image;
 
 import daque.math.linear;
 import daque.math.geometry;
+import daque.math.quaternion;
 
 import daque.graphics.opengl;
 import daque.graphics.sdl;
@@ -50,7 +51,7 @@ void heightmapPerspectiveTest()
     immutable rotation = perspective.getUniformLocation("rotation");
     immutable translation = perspective.getUniformLocation("translation");
 
-    perspective.setUniform!(1, "f")(uZn, [0.1]);
+    perspective.setUniform!(1, "f")(uZn, [1.0f]);
     perspective.setUniform!(1, "f")(uZf, [100.0f]);
     perspective.setUniform!(1, "f")(alpha, [45.0f]);
     perspective.setUniform!(1, "f")(xyRatio, [800.0f / 600.0f]);
@@ -81,13 +82,57 @@ void heightmapPerspectiveTest()
 	renderer.setTerrainTint(brownTint);
 	renderer.setDivisions(10);
 
+    Vertex[] hmMesh = renderer.getMesh(5.0f, [20.0f, 20.0f], heightMap);
+    auto gpuVertices = new GpuArray(
+        hmMesh,
+        cast(uint) hmMesh.length,
+        Vertex.formats);
+
 	glEnable(GL_DEPTH_TEST);
-	// Drawing operations
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_GREATER);
+    glClearDepth(0.0);
+	
+    // Translation 
+    float[] translationVector = [0.0f, 0.0f, -2.5f];
+
+    // Rotation stuff
+    immutable dr = Quaternion!float.getRotation([0, 1, 0], 0.01);
+    auto rotationQuaternion = cast(Quaternion!float) dr;
+
+    immutable delta = 0.1;
+    auto scancode = SDL_SCANCODE_W;
+    float[][SDL_Scancode] movements =
+    [
+        SDL_SCANCODE_W: [0, 0, -delta],
+        SDL_SCANCODE_S: [0, 0, +delta],
+        SDL_SCANCODE_D: [+delta, 0, 0],
+        SDL_SCANCODE_A: [-delta, 0, 0],
+        SDL_SCANCODE_E: [0, +delta, 0],
+        SDL_SCANCODE_Q: [0, -delta, 0]
+    ];
+
 	while (window.isOpen())
 	{
+        // model movement
+        ubyte* key = SDL_GetKeyboardState(null);
+        foreach(SDL_Scancode code, float[] movement; movements)
+            if(key[code])
+                translationVector[] += movement[];
+
+        rotationQuaternion = rotationQuaternion * dr;
+
+        // uniform setting
+        perspective.setUniformMatrix(rotation, rotationQuaternion.rotationMatrix());
+        perspective.setUniform!(3, "f")(translation, translationVector);
+
+        // render
 		window.clear();
+        perspective.use();
+        render(gpuVertices);
 		window.print();
 
+        // event handling
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{

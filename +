@@ -86,8 +86,8 @@ public:
         float[2] getBase(uint i, uint j)
         {
             float[2] base;
-            base[0] = (i + 1.0f) / (hmWidth + 1.0f) * size[0] - size[0] * 0.5f;
-            base[1] = (j + 1.0f) / (hmHeight + 1.0f) * size[1] - size[1] * 0.5f;
+            base[0] = (i + 1.0f) / (hmWidth + 1.0f) * size[0];
+            base[1] = (j + 1.0f) / (hmHeight + 1.0f) * size[1];
             return base;
         }
         Vertex getVertex(uint i, uint j)
