@@ -29,6 +29,7 @@ import viare.heightmap.quev;
 import viare.heightmap.heightmap;
 import viare.heightmap.heightfunction;
 import viare.heightmap.renderer;
+import viare.vertex;
 
 
 void perspectiveTest()
