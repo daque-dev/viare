@@ -40,8 +40,14 @@ public:
     void fillByHeightFunction(HeightFunction heightFunction)
     {
         for (uint i; i < m_xlength; i++)
+        {
             for (uint j; j < m_ylength; j++)
-                this[i, j] = heightFunction(cast(float) i / m_xlength, cast(float) j / m_ylength);
+            {
+                import std.stdio;
+                writeln(cast(double)i / m_xlength);    /// Don't know why. But fixes problem
+                this[i, j] = heightFunction(cast(double) i / m_xlength, cast(double) j / m_ylength);
+            }
+        }
     }
 
     void normalize()
