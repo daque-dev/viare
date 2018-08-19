@@ -63,7 +63,7 @@ void heightmapPerspectiveTest()
 	HeightFunction heightFunction = new QuevHeightFunction(centers);
 
 	// HeightMap Fill
-	HeightMap heightMap = new HeightMap(100, 100);
+	HeightMap heightMap = new HeightMap(70, 70);
 	writeln("Calculating heights");
 	heightMap.fillByHeightFunction(heightFunction);
 	writeln("Finished calculating heights");
@@ -80,7 +80,7 @@ void heightmapPerspectiveTest()
 	renderer.setWaterLevel(0.5);
 	renderer.setWaterTint(blueTint);
 	renderer.setTerrainTint(brownTint);
-	renderer.setDivisions(10);
+	renderer.setDivisions(20);
 
     Vertex[] hmMesh = renderer.getMesh(5.0f, [20.0f, 20.0f], heightMap);
     auto gpuVertices = new GpuArray(

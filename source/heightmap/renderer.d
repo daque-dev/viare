@@ -94,13 +94,19 @@ public:
         {
             auto base = getBase(i, j);
             float normalHeight = hm[i, j];
-            float height = normalHeight * height;
+            float pointHeight = normalHeight * height;
             bool isWater = (normalHeight <= m_waterLevel);
             auto tint = isWater? m_waterTint: m_terrainTint;
 
+            immutable heightPerDivision = 1.0f / cast(float) m_divisions;
+            immutable uint division = normalHeight == 1.0f ? m_divisions - 1
+                : cast(uint)(normalHeight / heightPerDivision);
+
+            pointHeight = heightPerDivision * division * height;
+
             Vertex v;
-            v.position[] = [base[0], height, base[1]];
-            v.color[0 .. 3] = normalHeight * tint[];
+            v.position[] = [base[0], pointHeight, base[1]];
+            v.color[0 .. 3] = heightPerDivision * division * tint[];
             v.color[3] = 1.0f;
             return v;
         }
