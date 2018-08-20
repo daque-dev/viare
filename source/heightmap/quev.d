@@ -45,8 +45,8 @@ public:
             return position;
         };
         defaultParams.weightGenerator = { return uniform!"[]"(-1.0, 1.0); };
-        defaultParams.baseGenerator = { return uniform!"[]"(20.1, 40.2); };
-        defaultParams.exponentGenerator = { return uniform!"[]"(1.2, 1.5); };
+        defaultParams.baseGenerator = { return uniform!"[]"(1000.1, 1000.2); };
+        defaultParams.exponentGenerator = { return uniform!"[]"(1.2, 5.6); };
         defaultParams.zoomGenerator = { return uniform!"[]"(0.125, 0.175); };
     }
 

@@ -86,27 +86,21 @@ public:
         float[2] getBase(uint i, uint j)
         {
             float[2] base;
-            base[0] = (i + 1.0f) / (hmWidth + 1.0f) * size[0] - size[0] * 0.5f;
-            base[1] = (j + 1.0f) / (hmHeight + 1.0f) * size[1] - size[1] * 0.5f;
+            base[0] = (i + 1.0f) / (hmWidth + 1.0f) * size[0];
+            base[1] = (j + 1.0f) / (hmHeight + 1.0f) * size[1];
             return base;
         }
         Vertex getVertex(uint i, uint j)
         {
             auto base = getBase(i, j);
             float normalHeight = hm[i, j];
-            float pointHeight = normalHeight * height;
+            float height = normalHeight * height;
             bool isWater = (normalHeight <= m_waterLevel);
             auto tint = isWater? m_waterTint: m_terrainTint;
 
-            immutable heightPerDivision = 1.0f / cast(float) m_divisions;
-            immutable uint division = normalHeight == 1.0f ? m_divisions - 1
-                : cast(uint)(normalHeight / heightPerDivision);
-
-            pointHeight = heightPerDivision * division * height;
-
             Vertex v;
-            v.position[] = [base[0], pointHeight, base[1]];
-            v.color[0 .. 3] = heightPerDivision * division * tint[];
+            v.position[] = [base[0], height, base[1]];
+            v.color[0 .. 3] = normalHeight * tint[];
             v.color[3] = 1.0f;
             return v;
         }

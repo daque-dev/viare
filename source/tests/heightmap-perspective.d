@@ -1,9 +1,9 @@
-// Core of the game
-module viare.tests.perspective;
+module viare.tests.heightmapperspective;
 
 import std.stdio;
 import std.file;
 import std.ascii;
+import std.uni;
 import std.string;
 import std.math;
 import std.random;
@@ -14,14 +14,14 @@ import derelict.opengl;
 import derelict.sdl2.sdl;
 import derelict.sdl2.image;
 
-import daque.math.geometry;
 import daque.math.linear;
+import daque.math.geometry;
 import daque.math.quaternion;
 
 import daque.graphics.opengl;
+import daque.graphics.sdl;
 import daque.graphics.color;
 import daque.graphics.image;
-import daque.graphics.sdl;
 
 import viare.models;
 
@@ -29,22 +29,21 @@ import viare.heightmap.quev;
 import viare.heightmap.heightmap;
 import viare.heightmap.heightfunction;
 import viare.heightmap.renderer;
+
 import viare.vertex;
 
 
-void perspectiveTest()
+void heightmapPerspectiveTest()
 {
-    // window setup
-    Window window = new Window("viare perspective test", 800, 600);
+	Window window = new Window("viare", 800, 800);
 
-    // perspective program setup
-    Program perspective = new Program();
-    Shader vertexShader = new Shader(Shader.Type.Vertex, "shaders/perspective-vertex.glsl");
-    Shader fragmentShader = new Shader(Shader.Type.Fragment, "shaders/perspective-fragment.glsl");
-    perspective.attach(vertexShader);
-    perspective.attach(fragmentShader);
-    perspective.link();
+	// GLSL textureProgram
+	Program perspective = new Program([
+            new Shader(Shader.Type.Vertex, "shaders/perspective-vertex.glsl"),
+			new Shader(Shader.Type.Fragment, "shaders/perspective-fragment.glsl")]);
+	perspective.link();
 
+    // Uniform setting
     immutable uZn = perspective.getUniformLocation("z_near");
     immutable uZf = perspective.getUniformLocation("z_far");
     immutable alpha = perspective.getUniformLocation("alpha");
@@ -52,36 +51,53 @@ void perspectiveTest()
     immutable rotation = perspective.getUniformLocation("rotation");
     immutable translation = perspective.getUniformLocation("translation");
 
-    perspective.setUniform!(1, "f")(uZn, [0.1]);
+    perspective.setUniform!(1, "f")(uZn, [1.0f]);
     perspective.setUniform!(1, "f")(uZf, [100.0f]);
     perspective.setUniform!(1, "f")(alpha, [45.0f]);
     perspective.setUniform!(1, "f")(xyRatio, [800.0f / 600.0f]);
     perspective.setUniform!(3, "f")(translation, [0.0f, 0.0f, -2.5f]);
 
-    // Vertex specification
-    Vertex[] vertices = [{
-        position: [0, 1, 0], 
-        color : [1, 0, 0, 1]
-    }, {
-        position: [1, -1, 0], 
-        color : [0, 1, 0, 1]
-    }, {
-        position: [-1, -1, 0], 
-        color : [0, 0, 1, 1]
-    }];
-    foreach(ref v; vertices)
-        v.position[] = normalize(v.position[]);
+	// Height Function 
+	immutable numberOfCenters = uniform!"[]"(300, 400);
+	QuevCenter[] centers = new StdQuevCentersGenerator()(numberOfCenters);
+	HeightFunction heightFunction = new QuevHeightFunction(centers);
 
+	// HeightMap Fill
+	HeightMap heightMap = new HeightMap(70, 70);
+	writeln("Calculating heights");
+	heightMap.fillByHeightFunction(heightFunction);
+	writeln("Finished calculating heights");
+	heightMap.normalize();
+
+	// Tints
+	float[3] blueTint = [0.0f, 0.3f, 0.7];
+	float[3] greenTint = [0.0f, 0.7f, 0.5f];
+	float[3] whiteTint = [1.0f, 1.0f, 1.0f];
+	float[3] brownTint = [0.7f, 0.5f, 0.3f];
+
+	// HeightMap Rendering Configuration
+	WaterTerrainHeightMapRenderer renderer = new WaterTerrainHeightMapRenderer();
+	renderer.setWaterLevel(0.5);
+	renderer.setWaterTint(blueTint);
+	renderer.setTerrainTint(brownTint);
+	renderer.setDivisions(20);
+
+    Vertex[] hmMesh = renderer.getMesh(5.0f, [20.0f, 20.0f], heightMap);
     auto gpuVertices = new GpuArray(
-        vertices,
-        cast(uint) vertices.length,
+        hmMesh,
+        cast(uint) hmMesh.length,
         Vertex.formats);
 
+	glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_GREATER);
+    glClearDepth(0.0);
+	
     // Translation 
     float[] translationVector = [0.0f, 0.0f, -2.5f];
 
     // Rotation stuff
-    immutable dr = Quaternion!float.getRotation([1, 3, 7], 0.01);
+    immutable dr = Quaternion!float.getRotation([0, 1, 0], 0.01);
     auto rotationQuaternion = cast(Quaternion!float) dr;
 
     immutable delta = 0.1;
@@ -95,39 +111,41 @@ void perspectiveTest()
         SDL_SCANCODE_E: [0, +delta, 0],
         SDL_SCANCODE_Q: [0, -delta, 0]
     ];
-    while (window.isOpen())
-    {
-        // general processing
-        rotationQuaternion = rotationQuaternion * dr;
 
+	while (window.isOpen())
+	{
+        // model movement
         ubyte* key = SDL_GetKeyboardState(null);
         foreach(SDL_Scancode code, float[] movement; movements)
             if(key[code])
                 translationVector[] += movement[];
 
-        // pre-rendering operations
+        rotationQuaternion = rotationQuaternion * dr;
+
+        // uniform setting
         perspective.setUniformMatrix(rotation, rotationQuaternion.rotationMatrix());
         perspective.setUniform!(3, "f")(translation, translationVector);
 
-        // rendering
-        window.clear();
+        // render
+		window.clear();
         perspective.use();
         render(gpuVertices);
-        window.print();
+		window.print();
 
-        // event processing
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
-            switch (event.type)
-            {
-            case SDL_QUIT:
-                window.close();
-                break;
+        // event handling
+		SDL_Event event;
+		while (SDL_PollEvent(&event))
+		{
+			switch (event.type)
+			{
+			case SDL_QUIT:
+				window.close();
+				break;
+			default:
+				break;
+			}
+		}
+	}
 
-            default:
-                break;
-            }
-        }
-    }
+	return;
 }
