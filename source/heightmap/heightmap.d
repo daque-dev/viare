@@ -43,8 +43,11 @@ public:
         {
             for (uint j; j < m_ylength; j++)
             {
-                import std.stdio;
-                writeln(cast(double)i / m_xlength);    /// Don't know why. But fixes problem
+                version(Windows)
+                {
+                    import std.stdio;
+                    writeln(cast(double)i / m_xlength);    /// Don't know why. But fixes problem
+                }
                 this[i, j] = heightFunction(cast(double) i / m_xlength, cast(double) j / m_ylength);
             }
         }
