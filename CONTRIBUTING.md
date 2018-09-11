@@ -21,7 +21,7 @@ you should read this.
         - [Bugs](#bugs)
         - [Enhancements](#enhancements)
     - [Pull Requests](#pull-requests)
-- [**Thanks!**](#thanks!)
+- [**Thanks!**](#thanks)
 
 ## Git Flow
 
@@ -80,32 +80,35 @@ That said, these are our suggested rules
 - Try to keep the line length at ~85. If exceeded, separate it in different lines.
 - `variable_names`, `CONSTANT_NAMES`, `Function_Names`, `StructureNames`
 - Insert new line before curly braces in blocks of code:
-    ```
-    /// Do this
-    if (condition)
-    {
 
-    }
+```js
 
-    /// Instead of this
-    if (condition){
+// Do this
+if (condition)
+{
 
-    }
-    ```
+}
+
+// Instead of this
+if (condition){
+
+}
+```
+
 - Always use curly braces after flow control statements. Even if it's followed
 by only one line:
-    ```
-    /// Do this
+
+    ```js
+    // Do this
     if (condition)
     {
         doSomethingInOneLine()
     }
 
-    /// Instead of this
+    // Instead of this
     if (condition)
         doSomethingInOneLine()
     ```
-- 
 
 ## Versioning
 
