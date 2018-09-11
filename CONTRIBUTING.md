@@ -15,6 +15,13 @@ you should read this.
     - [Commiting](#commiting)
     - [Branching](#branching)
 - [**Code Style**](#code-style)
+- [**Versioning**](#versioning)
+- [**GitHub Related**](#github-related)
+    - [Issues](#issues)
+        - [Bugs](#bugs)
+        - [Enhancements](#enhancements)
+    - [Pull Requests](#pull-requests)
+- [**Thanks!**](#thanks!)
 
 ## Git Flow
 
@@ -72,7 +79,7 @@ That said, these are our suggested rules
 - Use spaces around operators, except unaries: `x + y`, `x == y`, `x++`, `!x`.
 - Try to keep the line length at ~85. If exceeded, separate it in different lines.
 - `variable_names`, `CONSTANT_NAMES`, `Function_Names`, `StructureNames`
-- Use new line before `{` in blocks of code:
+- Insert new line before curly braces in blocks of code:
     ```
     /// Do this
     if (condition)
@@ -85,7 +92,7 @@ That said, these are our suggested rules
 
     }
     ```
-- Always use curly braces after flow control statements. Even if only it's followed
+- Always use curly braces after flow control statements. Even if it's followed
 by only one line:
     ```
     /// Do this
@@ -98,3 +105,66 @@ by only one line:
     if (condition)
         doSomethingInOneLine()
     ```
+- 
+
+## Versioning
+
+We follow [SemVer](https://semver.org/).
+
+Yup, just read it. Nothing to add.
+
+## GitHub Related
+
+### Issues
+
+If you have a question, don't open an issue. You can read the
+[FAQ](https://github.com/daque-dev/viare/blob/master/FAQ.md), or send us an e-mail
+at [contact@daque.me](mailto:contact@daque.me?Subject=Question)
+
+Issues are intended for reporting bugs, or discussing new features.
+
+Fortunately, GitHub allows us to provide an issue template. When you try to file
+a new issue, you'll see it. Try to fill it with all the info you can.
+
+Not all fields are required for every new issue. It depends on whether it is a bug
+report, or an enhancement discussion.
+
+#### Bugs
+
+The most important thing, is providing the necessary information to allow us to
+reproduce the problem. **Try to be as descriptive as possible.**
+
+Again, the best way to learn how to file an issue, is by taking a look at our
+[issue template](https://github.com/daque-dev/viare/issues/new).
+
+#### Enhancements
+
+This includes style changes, new features implementation, and general discussion
+on how to make ViaRE better. 
+
+We are more permissive on the structure of these issues. Anyways, you should still
+try to be as descriptive as possible.
+
+### Pull Requests
+
+Firs, you should read [Git Flow](#git-flow) and [Code Style](#code-style) sections.
+
+Once you have some changes that you'd like to see merged into our codebase, [open a
+Pull Request](https://github.com/daque-dev/viare/pull/new/master). We also have
+a PR template, that you'll see once you try to open one.
+
+Again, the most important thing is that you describe what changes you've made, and
+why you made them.
+
+---
+
+## Thanks!
+
+All that said, we will be very thankful and happy if you decide to contribute with
+the project.
+
+Don't be afraid to contribute if you feel you can't fulfil all of the rules in here.
+
+We will help you to help us.
+
+Cheers!
