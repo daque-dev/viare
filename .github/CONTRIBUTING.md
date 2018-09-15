@@ -55,6 +55,9 @@ a new version yet) go.
 From develop, we have multiple branches. Branches with meaningful names related
 to what is being developed inside each branch.
 
+A branch name must be short and descriptive, all lowercase. 
+Again, keep modularity in mind. For branches with multiple words `use-hyphens`.
+
 Once a new function or a bug-fix is implemented, we [create a Pull Request](#pull-requests)
 to merge changes back into `develop`.
 
