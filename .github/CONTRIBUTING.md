@@ -82,6 +82,7 @@ That said, these are our suggested rules
 - Use spaces around operators, except unaries: `x + y`, `x == y`, `x++`, `!x`.
 - Try to keep the line length at ~85. If exceeded, separate it in different lines.
 - `variable_names`, `CONSTANT_NAMES`, `Function_Names`, `StructureNames`
+- Write branch names in all lowercase, separeted with hyphens, and avoiding verbs: `graphics-simplification`, `docs`, `population-dynamics`
 - Insert new line before curly braces in blocks of code:
 
 ```js
