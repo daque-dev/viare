@@ -33,7 +33,7 @@ import viare.heightmap.renderer;
 import viare.vertex;
 
 
-void heightmapPerspectiveTest()
+void Heightmap_Perspective_Test()
 {
 	Window window = new Window("viare", 800, 800);
 
@@ -58,79 +58,91 @@ void heightmapPerspectiveTest()
     perspective.setUniform!(3, "f")(translation, [0.0f, 0.0f, -2.5f]);
 
 	// Height Function 
-	immutable numberOfCenters = uniform!"[]"(300, 400);
-	QuevCenter[] centers = new StdQuevCentersGenerator()(numberOfCenters);
-	HeightFunction heightFunction = new QuevHeightFunction(centers);
+	immutable number_of_centers = uniform!"[]"(300, 400);
+	QuevCenter[] centers = new StdQuevCentersGenerator()(number_of_centers);
+	HeightFunction height_function = new QuevHeightFunction(centers);
 
-	// HeightMap Fill
-	HeightMap heightMap = new HeightMap(70, 70);
+	// Heightmap Fill
+	Heightmap heightmap = new Heightmap(70, 70);
 	writeln("Calculating heights");
-	heightMap.fillByHeightFunction(heightFunction);
+	heightmap.Fill_By_Height_Function(height_function);
 	writeln("Finished calculating heights");
-	heightMap.normalize();
+	heightmap.Normalize();
+    //
 
 	// Tints
-	float[3] blueTint = [0.0f, 0.3f, 0.7];
-	float[3] greenTint = [0.0f, 0.7f, 0.5f];
-	float[3] whiteTint = [1.0f, 1.0f, 1.0f];
-	float[3] brownTint = [0.7f, 0.5f, 0.3f];
+	float[3] blue_tint = [0.0f, 0.3f, 0.7];
+	float[3] green_tint = [0.0f, 0.7f, 0.5f];
+	float[3] white_tint = [1.0f, 1.0f, 1.0f];
+	float[3] brown_tint = [0.7f, 0.5f, 0.3f]; 
+    //
 
-	// HeightMap Rendering Configuration
-	WaterTerrainHeightMapRenderer renderer = new WaterTerrainHeightMapRenderer();
-	renderer.setWaterLevel(0.5);
-	renderer.setWaterTint(blueTint);
-	renderer.setTerrainTint(brownTint);
-	renderer.setDivisions(20);
+	// Heightmap Rendering 
+	WaterTerrainHeightmapRenderSettings heightmap_render_settings = {water_level: 0.5, water_tint: blue_tint, terrain_tint: brown_tint, divisions: 20};
+    Vertex[] heightmap_mesh = Get_Heightmap_Mesh(heightmap_render_settings, 5.0f, [20.0f, 20.0f], heightmap);
+    GpuArray heightmap_mesh_in_gpu = new GpuArray(heightmap_mesh, cast(uint) heightmap_mesh.length, Vertex.formats);
+    //
 
-    Vertex[] hmMesh = renderer.getMesh(5.0f, [20.0f, 20.0f], heightMap);
-    auto gpuVertices = new GpuArray(
-        hmMesh,
-        cast(uint) hmMesh.length,
-        Vertex.formats);
-
+    // Depth mask OpenGL configuration
 	glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_GREATER);
     glClearDepth(0.0);
+    //
 	
-    // Translation 
-    float[] translationVector = [0.0f, 0.0f, -2.5f];
+    // Model translation 
+    float[] model_translation = [0.0f, 0.0f, -2.5f];
+    //
 
-    // Rotation stuff
-    immutable dr = Quaternion!float.getRotation([0, 1, 0], 0.01);
-    auto rotationQuaternion = cast(Quaternion!float) dr;
+    // Model rotation
+    immutable model_step_rotation = Quaternion!float.getRotation([0, 1, 0], 0.01);
+    auto model_rotation = cast(Quaternion!float) model_step_rotation;
+    //
 
-    immutable delta = 0.1;
-    auto scancode = SDL_SCANCODE_W;
-    float[][SDL_Scancode] movements =
+    // Controller configuration
+    immutable controller_movement = 0.1;
+    float[][SDL_Scancode] controller_movements =
     [
-        SDL_SCANCODE_W: [0, 0, -delta],
-        SDL_SCANCODE_S: [0, 0, +delta],
-        SDL_SCANCODE_D: [+delta, 0, 0],
-        SDL_SCANCODE_A: [-delta, 0, 0],
-        SDL_SCANCODE_E: [0, +delta, 0],
-        SDL_SCANCODE_Q: [0, -delta, 0]
+        SDL_SCANCODE_W: [0, 0, -controller_movement],
+        SDL_SCANCODE_S: [0, 0, +controller_movement],
+        SDL_SCANCODE_D: [+controller_movement, 0, 0],
+        SDL_SCANCODE_A: [-controller_movement, 0, 0],
+        SDL_SCANCODE_E: [0, +controller_movement, 0],
+        SDL_SCANCODE_Q: [0, -controller_movement, 0]
     ];
+    //
 
 	while (window.isOpen())
 	{
-        // model movement
-        ubyte* key = SDL_GetKeyboardState(null);
-        foreach(SDL_Scancode code, float[] movement; movements)
-            if(key[code])
-                translationVector[] += movement[];
+        // keyboard state querying
+        ubyte* keyboard_state = SDL_GetKeyboardState(null);
+        //
 
-        rotationQuaternion = rotationQuaternion * dr;
+        // controller action taking
+        foreach(SDL_Scancode controller_key_scancode, float[] controller_movement; controller_movements)
+        {
+            if (keyboard_state[controller_key_scancode])
+            {
+                model_translation[] += controller_movement[];
+            }
+        }
+        //
+
+        // step rotation
+        model_rotation = model_rotation * model_step_rotation;
+        //
 
         // uniform setting
-        perspective.setUniformMatrix(rotation, rotationQuaternion.rotationMatrix());
-        perspective.setUniform!(3, "f")(translation, translationVector);
+        perspective.setUniformMatrix(rotation, model_rotation.rotationMatrix());
+        perspective.setUniform!(3, "f")(translation, model_translation);
+        //
 
-        // render
+        // rendering
 		window.clear();
         perspective.use();
-        render(gpuVertices);
+        render(heightmap_mesh_in_gpu);
 		window.print();
+        //
 
         // event handling
 		SDL_Event event;
@@ -145,6 +157,7 @@ void heightmapPerspectiveTest()
 				break;
 			}
 		}
+        //
 	}
 
 	return;

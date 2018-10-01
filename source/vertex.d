@@ -7,65 +7,66 @@ import derelict.opengl;
 
 import daque.graphics.opengl;
 
-alias Vertex = Vert!"3f.0:position 4fn1:color";
+alias Vertex = DefineVertex!"3f.0:position 4fn1:color";
 
 // 3f.0:position 4fn1:color
 struct MemberInfo
 {
     string type;
     string identifier;
-
     string index;
     string size;
-    string glType;
+    string gl_type;
     string normalized;
 }
 
-MemberInfo getInfo(string memberString) pure nothrow
+MemberInfo Get_Info(string member_string) pure nothrow
 {
-    string[] parts = split(memberString, ":");
+    string[] parts = split(member_string, ":");
     string first = parts[0];
     string second = parts[1];
 
     string type = (first[1] == 'f')? "float" : "float";
     string size = first[0 .. 1];
 
-    MemberInfo info;
-    info.type = type ~ "[" ~ size ~ "]";
-    info.identifier = second;
-    info.index = memberString[3 .. 4];
-    info.size = size;
-    info.glType = (type == "float")? "GL_FLOAT" : "GL_FLOAT";
-    info.normalized = (memberString[2] == 'n')? "GL_TRUE" : "GL_FALSE";
+    MemberInfo info = {
+        type: type ~ "[" ~ size ~ "]",
+        identifier: second,
+        index: member_string[3 .. 4],
+        size: size,
+        gl_type: (type == "float")? "GL_FLOAT" : "GL_FLOAT",
+        normalized: (member_string[2] == 'n')? "GL_TRUE" : "GL_FALSE"
+    };
     return info;
 }
-MemberInfo[] getInfos(string membersString) pure nothrow
+
+MemberInfo[] Get_Infos(string members_string) pure nothrow
 {
-    string[] memberString = split(membersString, " ");
+    string[] member_string = split(members_string, " ");
     MemberInfo[] infos;
-    foreach(str; memberString)
+    foreach(str; member_string)
     {
-        infos ~= getInfo(str);
+        infos ~= Get_Info(str);
     }
     return infos;
 }
 
-string attrFormatString(MemberInfo info)
+string Get_AttributeFormat_String(MemberInfo info)
 {
     return "{ index: " ~ info.index ~
         ", size: " ~ info.size ~
-        ", type: " ~ info.glType ~
+        ", type: " ~ info.gl_type ~
         ", normalized: " ~ info.normalized ~
         ", stride: this.sizeof" ~
         ", pointer: cast(void*) this." ~ info.identifier ~ ".offsetof}";
 }
 
-string attrFormatStrings(MemberInfo[] infos)
+string Get_AttributeFormat_Strings(MemberInfo[] infos)
 {
     string str = "[";
     foreach(uint i, MemberInfo info; infos)
     {
-        str ~= attrFormatString(info);
+        str ~= Get_AttributeFormat_String(info);
         if(i + 1 < infos.length)
             str ~= ", ";
     }
@@ -73,27 +74,24 @@ string attrFormatStrings(MemberInfo[] infos)
     return str;
 }
 
-string declaration(MemberInfo info)
+string Get_Declaration(MemberInfo info)
 {
     return info.type ~ " " ~ info.identifier ~ ";";
 }
 
-string formStruct(string membersString)
+string Form_Struct(string members_string)
 {
-    string structString;
-    auto infos = getInfos(membersString);
+    string struct_string;
+    auto infos = Get_Infos(members_string);
     foreach(info; infos)
-        structString ~= declaration(info);
-    structString ~= "static AttributeFormat[] formats = " ~ attrFormatStrings(infos) ~ ";";
-    return structString;
+        struct_string ~= Get_Declaration(info);
+    struct_string ~= "static AttributeFormat[] formats = " ~ Get_AttributeFormat_Strings(infos) ~ ";";
+    return struct_string;
 }
 
-template Vert(string membersString)
+struct DefineVertex(string members_string)
 {
-    struct Vert
-    {
-        mixin(formStruct(membersString));
-    }
+	 mixin(Form_Struct(members_string));
 }
 
 unittest
