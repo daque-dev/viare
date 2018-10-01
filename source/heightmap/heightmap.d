@@ -2,7 +2,7 @@ module viare.heightmap.heightmap;
 
 import viare.heightmap.heightfunction;
 
-class HeightMap
+class Heightmap
 {
 private:
     float[][] m_height;
@@ -10,6 +10,7 @@ private:
     const uint m_ylength;
 
 public:
+
     this(uint width, uint height)
     {
         m_xlength = width;
@@ -22,12 +23,12 @@ public:
         m_height.each!((ref column) => column.each!((ref element) => element = 0));
     }
 
-    uint getWidth()
+    uint Get_Width()
     {
         return m_xlength;
     }
 
-    uint getHeight()
+    uint Get_Height()
     {
         return m_ylength;
     }
@@ -37,7 +38,7 @@ public:
         return m_height[i][j];
     }
 
-    void fillByHeightFunction(HeightFunction heightFunction)
+    void Fill_By_Height_Function(HeightFunction height_function)
     {
         for (uint i; i < m_xlength; i++)
         {
@@ -48,28 +49,39 @@ public:
                     import std.stdio;
                     writeln(cast(double)i / m_xlength);    /// Don't know why. But fixes problem
                 }
-                this[i, j] = heightFunction(cast(double) i / m_xlength, cast(double) j / m_ylength);
+                this[i, j] = height_function(cast(double) i / m_xlength, cast(double) j / m_ylength);
             }
         }
     }
 
-    void normalize()
+    void Normalize()
     {
         float lowest = this[0, 0], highest = this[0, 0];
 
         for (uint i; i < m_xlength; i++)
+        {
             for (uint j; j < m_ylength; j++)
             {
                 if (this[i, j] < lowest)
+                {
                     lowest = this[i, j];
-                if (this[i, j] > highest)
-                    highest = this[i, j];
-            }
+                }
 
-        immutable maxRelativeHeight = highest - lowest;
+                if (this[i, j] > highest)
+                {
+                    highest = this[i, j];
+                }
+            }
+        }
+
+        immutable max_relative_height = highest - lowest;
 
         for (uint i; i < m_xlength; i++)
+        {
             for (uint j; j < m_ylength; j++)
-                this[i, j] = (this[i, j] - lowest) / maxRelativeHeight;
+            {
+                this[i, j] = (this[i, j] - lowest) / max_relative_height;
+            }
+        }
     }
 }

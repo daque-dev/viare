@@ -12,5 +12,5 @@ import daque.math.geometry;
 
 void main()
 {
-    heightmapPerspectiveTest();
+    Heightmap_Perspective_Test();
 }

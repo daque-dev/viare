@@ -23,55 +23,55 @@ interface QuevCentersGenerator
 class StdQuevCentersGenerator : QuevCentersGenerator
 {
 private:
-    Params m_params;
+    Parameters m_parameters;
 public:
-    struct Params
+    struct Parameters
     {
-        double[2]delegate() positionGenerator;
-        double delegate() weightGenerator;
-        double delegate() baseGenerator;
-        double delegate() exponentGenerator;
-        double delegate() zoomGenerator;
+        double[2]delegate() position_generator;
+        double delegate() weight_generator;
+        double delegate() base_generator;
+        double delegate() exponent_generator;
+        double delegate() zoom_generator;
     }
 
-    static Params defaultParams;
+    static Parameters default_parameters;
 
     static this()
     {
-        defaultParams.positionGenerator = {
+        default_parameters.position_generator = {
             double x = uniform!"[)"(0.0, 1.0);
             double y = uniform!"[)"(0.0, 1.0);
             double[2] position = [x, y];
             return position;
         };
-        defaultParams.weightGenerator = { return uniform!"[]"(-1.0, 1.0); };
-        defaultParams.baseGenerator = { return uniform!"[]"(1000.1, 1000.2); };
-        defaultParams.exponentGenerator = { return uniform!"[]"(1.2, 5.6); };
-        defaultParams.zoomGenerator = { return uniform!"[]"(0.125, 0.175); };
+        default_parameters.weight_generator = { return uniform!"[]"(-1.0, 1.0); };
+        default_parameters.base_generator = { return uniform!"[]"(1000.1, 1000.2); };
+        default_parameters.exponent_generator = { return uniform!"[]"(1.2, 5.6); };
+        default_parameters.zoom_generator = { return uniform!"[]"(0.125, 0.175); };
     }
 
-    this(Params params)
+    this(Parameters parameters)
     {
-        m_params = params;
+        m_parameters = parameters;
     }
 
     this()
     {
-        this(defaultParams);
+        this(default_parameters);
     }
 
-    QuevCenter[] opCall(uint noCenters)
+    QuevCenter[] opCall(uint no_centers)
     {
         QuevCenter[] centers;
-        for (uint centerNo; centerNo < noCenters; centerNo++)
+        for (uint center_number; center_number < no_centers; center_number++)
         {
-            QuevCenter newCenter;
-            newCenter.position[] = m_params.positionGenerator()[];
-            newCenter.weight = m_params.weightGenerator();
-            newCenter.base = m_params.baseGenerator();
-            newCenter.exponent = m_params.exponentGenerator();
-            newCenter.zoom = m_params.zoomGenerator();
-            centers ~= newCenter;
+            QuevCenter center;
+            center.position[] = m_parameters.position_generator()[];
+            center.weight = m_parameters.weight_generator();
+            center.base = m_parameters.base_generator();
+            center.exponent = m_parameters.exponent_generator();
+            center.zoom = m_parameters.zoom_generator();
+            centers ~= center;
         }
         return centers;
     }
@@ -85,6 +85,7 @@ private:
 
     static immutable epsilon = 0.01;
 public:
+
     this(QuevCenter[] centers)
     {
         m_centers.length = centers.length;
@@ -106,12 +107,12 @@ public:
 
         foreach (uint i, QuevCenter center; m_centers)
         {
-            immutable distanceToCenter = distance!double(point, center.position);
-            if (distanceToCenter > m_threshholds[i])
+            immutable distance_to_center = distance!double(point, center.position);
+            if (distance_to_center > m_threshholds[i])
                 continue;
 
             total += center.weight * pow(center.base,
-                    -pow(distanceToCenter / center.zoom, center.exponent));
+                    -pow(distance_to_center / center.zoom, center.exponent));
         }
         return total;
     }
