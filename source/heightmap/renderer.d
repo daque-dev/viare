@@ -5,12 +5,16 @@ import daque.graphics.color;
 
 import viare.heightmap.heightmap;
 
-import viare.vertex;
-
 interface HeightMapRenderer
 {
 public:
     Image render(HeightMap heightMap);
+}
+
+struct Vertex 
+{
+    float[3] position;
+    float[4] color;
 }
 
 class WaterTerrainHeightMapRenderer : HeightMapRenderer
