@@ -5,14 +5,18 @@ import daque.graphics.color;
 
 import viare.heightmap.heightmap;
 
-import viare.vertex;
-
 struct WaterTerrainHeightmapRenderSettings
 {
 public:
     float[3] water_tint = [0.0, 0.0, 1.0], terrain_tint = [0.0, 1.0, 0.0];
     float water_level = 0.0f;
     uint divisions = 0x100;
+}
+
+struct Vertex 
+{
+    float[3] position;
+    float[4] color;
 }
 
 Vertex[] Get_Heightmap_Mesh(WaterTerrainHeightmapRenderSettings render_settings, float height, float[2] size, Heightmap heightmap)
