@@ -11,6 +11,6 @@
 	"dependencies": {
 	    "derelict-sdl2": "~>3.0.0-beta",
 	    "derelict-gl3": "~>2.0.0-beta", 
-		 "libdaque": "0.2.2"
+		 "libdaque": "~>0.3.1-develop"
 	}
 }

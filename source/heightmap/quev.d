@@ -8,111 +8,112 @@ import viare.heightmap.heightfunction;
 
 struct QuevCenter
 {
-	double[2] position;
-	double weight;
-	double base;
-	double exponent;
-	double zoom;
+    double[2] position;
+    double weight;
+    double base;
+    double exponent;
+    double zoom;
 }
 
 interface QuevCentersGenerator
 {
-	QuevCenter[] opCall(uint noCenters);
+    QuevCenter[] opCall(uint noCenters);
 }
 
 class StdQuevCentersGenerator : QuevCentersGenerator
 {
 private:
-	Params m_params;
+    Parameters m_parameters;
 public:
-	struct Params
-	{
-		double[2]delegate() positionGenerator;
-		double delegate() weightGenerator;
-		double delegate() baseGenerator;
-		double delegate() exponentGenerator;
-		double delegate() zoomGenerator;
-	}
+    struct Parameters
+    {
+        double[2]delegate() position_generator;
+        double delegate() weight_generator;
+        double delegate() base_generator;
+        double delegate() exponent_generator;
+        double delegate() zoom_generator;
+    }
 
-	static Params defaultParams;
+    static Parameters default_parameters;
 
-	static this()
-	{
-		defaultParams.positionGenerator = {
-			double x = uniform!"[)"(0.0, 1.0);
-			double y = uniform!"[)"(0.0, 1.0);
-			double[2] position = [x, y];
-			return position;
-		};
-		defaultParams.weightGenerator = { return uniform!"[]"(-1.0, 1.0); };
-		defaultParams.baseGenerator = { return uniform!"[]"(20.1, 40.2); };
-		defaultParams.exponentGenerator = { return uniform!"[]"(1.2, 1.5); };
-		defaultParams.zoomGenerator = { return uniform!"[]"(0.125, 0.175); };
-	}
+    static this()
+    {
+        default_parameters.position_generator = {
+            double x = uniform!"[)"(0.0, 1.0);
+            double y = uniform!"[)"(0.0, 1.0);
+            double[2] position = [x, y];
+            return position;
+        };
+        default_parameters.weight_generator = { return uniform!"[]"(-1.0, 1.0); };
+        default_parameters.base_generator = { return uniform!"[]"(1000.1, 1000.2); };
+        default_parameters.exponent_generator = { return uniform!"[]"(1.2, 5.6); };
+        default_parameters.zoom_generator = { return uniform!"[]"(0.125, 0.175); };
+    }
 
-	this(Params params)
-	{
-		m_params = params;
-	}
+    this(Parameters parameters)
+    {
+        m_parameters = parameters;
+    }
 
-	this()
-	{
-		this(defaultParams);
-	}
+    this()
+    {
+        this(default_parameters);
+    }
 
-	QuevCenter[] opCall(uint noCenters)
-	{
-		QuevCenter[] centers;
-		for (uint centerNo; centerNo < noCenters; centerNo++)
-		{
-			QuevCenter newCenter;
-			newCenter.position[] = m_params.positionGenerator()[];
-			newCenter.weight = m_params.weightGenerator();
-			newCenter.base = m_params.baseGenerator();
-			newCenter.exponent = m_params.exponentGenerator();
-			newCenter.zoom = m_params.zoomGenerator();
-			centers ~= newCenter;
-		}
-		return centers;
-	}
+    QuevCenter[] opCall(uint no_centers)
+    {
+        QuevCenter[] centers;
+        for (uint center_number; center_number < no_centers; center_number++)
+        {
+            QuevCenter center;
+            center.position[] = m_parameters.position_generator()[];
+            center.weight = m_parameters.weight_generator();
+            center.base = m_parameters.base_generator();
+            center.exponent = m_parameters.exponent_generator();
+            center.zoom = m_parameters.zoom_generator();
+            centers ~= center;
+        }
+        return centers;
+    }
 }
 
 class QuevHeightFunction : HeightFunction
 {
 private:
-	QuevCenter[] m_centers;
-	double[] m_threshholds;
+    QuevCenter[] m_centers;
+    double[] m_threshholds;
 
-	static immutable epsilon = 0.01;
+    static immutable epsilon = 0.01;
 public:
-	this(QuevCenter[] centers)
-	{
-		m_centers.length = centers.length;
-		m_centers[] = centers[];
 
-		m_threshholds.length = m_centers.length;
+    this(QuevCenter[] centers)
+    {
+        m_centers.length = centers.length;
+        m_centers[] = centers[];
 
-		foreach (uint i, QuevCenter center; m_centers)
-		{
-			m_threshholds[i] = center.zoom * pow(-log(epsilon / abs(center.weight)) / log(center.base),
-					1.0 / center.exponent);
-		}
-	}
+        m_threshholds.length = m_centers.length;
 
-	double opCall(double x, double y)
-	{
-		double[2] point = [x, y];
-		double total = 0.0;
+        foreach (uint i, QuevCenter center; m_centers)
+        {
+            m_threshholds[i] = center.zoom * pow(-log(epsilon / abs(
+                    center.weight)) / log(center.base), 1.0 / center.exponent);
+        }
+    }
 
-		foreach (uint i, QuevCenter center; m_centers)
-		{
-			immutable distanceToCenter = distance!double(point, center.position);
-			if (distanceToCenter > m_threshholds[i])
-				continue;
+    double opCall(double x, double y)
+    {
+        double[2] point = [x, y];
+        double total = 0.0;
 
-			total += center.weight * pow(center.base,
-					-pow(distanceToCenter / center.zoom, center.exponent));
-		}
-		return total;
-	}
+        foreach (uint i, QuevCenter center; m_centers)
+        {
+            immutable distance_to_center = distance!double(point, center.position);
+            if (distance_to_center > m_threshholds[i])
+                continue;
+
+            total += center.weight * pow(center.base,
+                    -pow(distance_to_center / center.zoom, center.exponent));
+        }
+        return total;
+    }
 }
